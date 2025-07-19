@@ -1,0 +1,98 @@
+// --- Cuponomics Shopify Pixel Adaptado ---
+// Captura UTMs, parámetros de Cuponomics y envía la conversión a tu API
+
+function captureTrackingParameters() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const trackingData = {};
+  const utmParams = [
+    'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'utm_id'
+  ];
+  const cuponomicsParams = [
+    'cp_store_id', 'cp_store_name', 'cp_coupon_code', 'cp_coupon_id',
+    'cp_discount_type', 'cp_discount_value'
+  ];
+  const otherParams = [
+    'fbclid', 'gclid', 'msclkid', 'ref', 'referrer', 'affiliate_id', 'partner_id'
+  ];
+  [...utmParams, ...cuponomicsParams, ...otherParams].forEach(param => {
+    const value = urlParams.get(param);
+    if (value) trackingData[param] = value;
+  });
+  if (window.location.hash) {
+    trackingData.url_hash = window.location.hash.substring(1);
+  }
+  if (Object.keys(trackingData).length > 0) {
+    try {
+      sessionStorage.setItem('cuponomics_tracking_data', JSON.stringify(trackingData));
+      console.log('Cuponomics: Parámetros de tracking capturados:', trackingData);
+    } catch (e) {
+      console.error('Cuponomics: Error guardando parámetros:', e);
+    }
+  }
+}
+
+function getStoredTrackingData() {
+  try {
+    const stored = sessionStorage.getItem('cuponomics_tracking_data');
+    return stored ? JSON.parse(stored) : {};
+  } catch (e) {
+    console.error('Cuponomics: Error recuperando parámetros:', e);
+    return {};
+  }
+}
+
+captureTrackingParameters();
+
+analytics.subscribe('checkout_completed', (event) => {
+  try {
+    const { checkout } = event.data;
+    if (!checkout || !checkout.order) {
+      console.error('Cuponomics: Datos de checkout incompletos');
+      return;
+    }
+    const trackingData = getStoredTrackingData();
+    const discountCode = checkout.discountApplications
+      ?.find(app => app.type === 'DISCOUNT_CODE')
+      ?.title || null;
+
+    // === ADAPTADO PARA TU API ===
+    const orderData = {
+      pixel_id: trackingData.cp_store_id || 'd5115851-dd01-4c19-a09f-c108ccda9633',
+      order_id: checkout.order.id,
+      conversion_value: checkout.totalPrice?.amount ? parseFloat(checkout.totalPrice.amount) : 0,
+      currency: checkout.totalPrice?.currencyCode || 'USD',
+      coupon_code: discountCode,
+      customer_email: checkout.order.customer?.email || null,
+      product_ids: checkout.lineItems?.map(item => item.variant?.product?.id || null) || [],
+      product_names: checkout.lineItems?.map(item => item.variant?.title || item.title || 'Unknown Product') || [],
+      platform: "shopify",
+      // Opcional: para debug
+      _debug_data: trackingData
+    };
+
+    // REEMPLAZA por tu dominio real de Cuponomics
+    const apiUrl = 'https://TU_DOMINIO_CUPONOMICS/api/tracking/conversion';
+
+    fetch(apiUrl, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-Cuponomics-Version': '2.0'
+      },
+      body: JSON.stringify(orderData),
+      keepalive: true,
+    })
+    .then(response => {
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      console.log('Cuponomics: Conversión enviada exitosamente');
+      sessionStorage.removeItem('cuponomics_tracking_data');
+    })
+    .catch(error => {
+      console.error('Cuponomics: Error al enviar conversión:', error);
+    });
+
+  } catch (error) {
+    console.error('Cuponomics: Error en el pixel:', error);
+  }
+}); 

@@ -1,0 +1,23 @@
+{
+  "home": {
+    "title": "Descubre las mejores ofertas",
+    "description": "Descubre las mejores ofertas, cupones y descuentos en tus tiendas favoritas. ¡Ahorra en Black Friday, Cyber Monday, Hot Sale y más!"
+  },
+  "offers": {
+    "title": "Ofertas y Cupones",
+    "description": "Encuentra cupones y ofertas para Black Friday, Cyber Monday, Hot Sale, Prime Day, Buen Fin y más días de descuentos famosos."
+  },
+  "seo": {
+    "cuponomics": "Cuponomics",
+    "blackfriday": "Black Friday",
+    "cybermonday": "Cyber Monday",
+    "hotsale": "Hot Sale",
+    "primeday": "Prime Day",
+    "buenfin": "Buen Fin",
+    "singlesday": "Singles Day",
+    "navidad": "Navidad",
+    "rebajas": "Rebajas",
+    "ofertas": "Ofertas",
+    "cupones": "Cupones"
+  }
+} 

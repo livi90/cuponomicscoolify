@@ -1,0 +1,23 @@
+{
+  "home": {
+    "title": "Cuponomics - Ofertas e Cupons no seu idioma",
+    "description": "Descubra as melhores ofertas, cupons e descontos nas suas lojas favoritas. Economize na Black Friday, Cyber Monday, Hot Sale e muito mais!"
+  },
+  "offers": {
+    "title": "Ofertas e Cupons",
+    "description": "Encontre cupons e ofertas para Black Friday, Cyber Monday, Hot Sale, Prime Day, Buen Fin e outros dias famosos de descontos."
+  },
+  "seo": {
+    "cuponomics": "Cuponomics",
+    "blackfriday": "Black Friday",
+    "cybermonday": "Cyber Monday",
+    "hotsale": "Hot Sale",
+    "primeday": "Prime Day",
+    "buenfin": "Buen Fin",
+    "singlesday": "Singles Day",
+    "natal": "Natal",
+    "saldos": "Saldos",
+    "ofertas": "Ofertas",
+    "cupons": "Cupons"
+  }
+} 

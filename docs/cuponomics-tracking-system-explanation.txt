@@ -1,0 +1,43 @@
+Cuponomics Tracking & Script Generation System - Overview
+========================================================
+
+1. Tracking Pixel & Script Generation
+-------------------------------------
+- Each store is assigned a unique tracking pixel (pixel_id) in the database whenever a new store is created.
+- The endpoint `/api/tracking/conversion?pixel_id=...` (GET) dynamically generates a JavaScript tracking script for the store.
+- The script can be embedded in the store's checkout or thank-you page.
+- The script exposes a global function `window.cuponomicsTrack(eventType, data)` to manually trigger conversions (e.g., on purchase).
+- The script also tries to auto-detect purchases on common checkout success URLs.
+
+2. How Conversion Tracking Works
+-------------------------------
+- When a purchase occurs, the script sends a POST request to `/api/tracking/conversion` with details:
+  - pixel_id, order_id, conversion_value, currency, coupon_code, customer_email, product_ids, product_names, platform, UTM params, etc.
+- The API validates the data, looks up the pixel and store, and optionally links the conversion to a tracked click or coupon.
+- The conversion is inserted into the `tracking_conversions` table in the database, with status 'pending'.
+- The pixel's stats (total_conversions, total_revenue, last_activity_at) are updated in the `tracking_pixels` table.
+
+3. Database Tables Involved
+--------------------------
+- `tracking_pixels`: Stores pixel_id, store_id, commission_rate, stats, etc.
+- `tracking_conversions`: Stores each conversion (purchase), linked to pixel, store, click, coupon, etc.
+- `tracking_clicks`: (Optional) Stores click events for attribution.
+- `coupons`: Stores coupon codes for validation and attribution.
+- `stores`: Store info, owner, etc.
+
+4. CORS & Security
+------------------
+- The API supports CORS for cross-origin requests from stores.
+- Only active pixels can track conversions.
+- No sensitive customer data is stored except email (if provided for attribution).
+
+5. Debugging/Testing
+--------------------
+- You can test the script by embedding it in a test store and triggering purchases.
+- Check the network tab for POST requests to `/api/tracking/conversion` and API responses.
+- All logic is in `app/api/tracking/conversion/route.ts` (Next.js API route).
+
+For further debugging, a developer should:
+- Inspect the generated script and network requests.
+- Check the database tables for new conversion rows.
+- Review the API logic in the route file. 
