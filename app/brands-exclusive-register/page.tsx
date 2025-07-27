@@ -41,7 +41,7 @@ export default function PublicBrandsExclusiveRegisterPage() {
   useEffect(() => {
     // Cargar categorías desde Supabase
     const fetchCategories = async () => {
-      const supabase = createClient()
+      
       const { data } = await supabase.from("categories").select("id, name")
       if (data && data.length > 0) {
         setCategories(data)
@@ -70,7 +70,7 @@ export default function PublicBrandsExclusiveRegisterPage() {
     fetchCategories()
     // Detectar usuario autenticado
     const checkUser = async () => {
-      const supabase = createClient()
+      
       const { data: { user } } = await supabase.auth.getUser()
       setUser(user)
     }
@@ -105,7 +105,7 @@ export default function PublicBrandsExclusiveRegisterPage() {
     setRegisterLoading(true)
     setRegisterSuccess(false)
     try {
-      const supabase = createClient()
+      
       const { data, error } = await supabase.auth.signUp({
         email: registerForm.email,
         password: registerForm.password,
@@ -138,7 +138,7 @@ export default function PublicBrandsExclusiveRegisterPage() {
     }
     setLoading(true)
     try {
-      const supabase = createClient()
+      
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
         setError("No autorizado")

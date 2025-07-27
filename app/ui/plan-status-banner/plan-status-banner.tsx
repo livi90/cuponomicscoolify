@@ -1,6 +1,5 @@
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
-import { createClient } from "@supabase/supabase-js"
-import type { Database } from "@/lib/types" // Ajusta si tu tipado vive en otro archivo
+import { createClient } from "@/lib/supabase/server"
 
 /**
  * Banner para avisar al merchant cuando está en el plan gratuito
@@ -10,7 +9,7 @@ import type { Database } from "@/lib/types" // Ajusta si tu tipado vive en otro 
 export default async function PlanStatusBanner() {
   "use server"
 
-  const supabase = createClient<Database>(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
+  const supabase = await createClient()
 
   // Obtiene al usuario autenticado
   const {
@@ -25,7 +24,7 @@ export default async function PlanStatusBanner() {
 
   // Devuelve el aviso
   return (
-    <Alert variant="warning" className="mb-4">
+    <Alert className="mb-4 border-yellow-200 bg-yellow-50 text-yellow-800">
       <AlertTitle className="font-semibold">Estás en el plan gratuito</AlertTitle>
       <AlertDescription>
         Puedes crear hasta 20 productos. Actualiza tu suscripción para desbloquear funciones ilimitadas.

@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 
+
+// Crear una sola instancia de Supabase para todo el componente
+
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
     const supabase = await createClient()

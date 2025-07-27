@@ -7,6 +7,11 @@ import { Badge } from "@/components/ui/badge"
 import { formatCurrency } from "@/lib/utils"
 import { ArrowLeft, Store, Tag, Package, Calendar } from "lucide-react"
 
+// Crear una sola instancia de Supabase para todo el componente
+const supabase = createClient()
+
+// Crear una sola instancia de Supabase para todo el componente
+
 export const dynamic = "force-dynamic"
 export const revalidate = 0
 

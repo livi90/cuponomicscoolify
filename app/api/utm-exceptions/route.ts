@@ -1,9 +1,11 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 
+
+// Crear una sola instancia de Supabase para todo el componente
+
 export async function GET() {
   try {
-    const supabase = createClient()
 
     const { data: exceptions, error } = await supabase
       .from("utm_tracking_exceptions")
@@ -25,7 +27,6 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const supabase = createClient()
 
     // Verificar que el usuario sea admin
     const {

@@ -467,6 +467,31 @@ export default function HomePage() {
                 </Link>
               </div>
 
+              {/* Navegación rápida */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-8">
+                <Link href="/ofertas-populares">
+                  <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 text-center border border-purple-200 hover:shadow-lg transition-all duration-300 hover:scale-105">
+                    <TrendingUp className="h-8 w-8 text-purple-600 mx-auto mb-2" />
+                    <h3 className="font-bold text-purple-700">Ofertas Populares</h3>
+                    <p className="text-sm text-purple-600">Los cupones más utilizados</p>
+                  </div>
+                </Link>
+                <Link href="/productos-en-oferta">
+                  <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-4 text-center border border-emerald-200 hover:shadow-lg transition-all duration-300 hover:scale-105">
+                    <ShoppingBag className="h-8 w-8 text-emerald-600 mx-auto mb-2" />
+                    <h3 className="font-bold text-emerald-700">Productos Outlet</h3>
+                    <p className="text-sm text-emerald-600">Descuentos increíbles</p>
+                  </div>
+                </Link>
+                <Link href="/buscar-ofertas">
+                  <div className="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-xl p-4 text-center border border-orange-200 hover:shadow-lg transition-all duration-300 hover:scale-105">
+                    <Gift className="h-8 w-8 text-orange-600 mx-auto mb-2" />
+                    <h3 className="font-bold text-orange-700">Todas las Ofertas</h3>
+                    <p className="text-sm text-orange-600">Explora todos los cupones</p>
+                  </div>
+                </Link>
+              </div>
+
               <div className="flex items-center justify-center gap-8 pt-8 text-sm text-gray-500">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-5 h-5 text-green-500" />

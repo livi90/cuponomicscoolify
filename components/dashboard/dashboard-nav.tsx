@@ -15,6 +15,8 @@ import {
   FileText,
   TrendingUp,
   Target,
+  Megaphone,
+  ShoppingBag,
 } from "lucide-react"
 
 interface DashboardNavProps {
@@ -96,6 +98,18 @@ export function DashboardNav({ userRole }: DashboardNavProps) {
       href: "/dashboard/settings",
       icon: Settings,
       roles: ["user", "merchant", "admin"],
+    },
+    {
+      title: "Banners",
+      href: "/dashboard/admin/banners",
+      icon: Megaphone,
+      roles: ["admin"],
+    },
+    {
+      title: "Productos Outlet",
+      href: "/dashboard/admin/outlet-products",
+      icon: ShoppingBag,
+      roles: ["admin"],
     },
   ]
 

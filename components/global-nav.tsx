@@ -124,6 +124,7 @@ export function GlobalNav() {
   const navItems = [
     { name: "Inicio", path: "/", icon: <Home className="h-4 w-4" /> },
     { name: "Ofertas", path: "/buscar-ofertas", icon: <Tag className="h-4 w-4" /> },
+    { name: "Outlet", path: "/productos-en-oferta", icon: <ShoppingBag className="h-4 w-4" /> },
     { name: "Productos", path: "/productos", icon: <ShoppingBag className="h-4 w-4" /> },
     { name: "Calificar", path: "/calificar-cupones", icon: <Star className="h-4 w-4" /> },
     { name: "Tiendas", path: "/tiendas", icon: <Store className="h-4 w-4" /> },

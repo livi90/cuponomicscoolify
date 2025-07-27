@@ -1,11 +1,29 @@
--- Políticas RLS para la tabla products
+-- Migración para aplicar RLS a la tabla products existente
 -- Ejecutar este script en Supabase SQL Editor
 
--- 1. Habilitar RLS en la tabla products
+-- 1. Verificar que la tabla products existe
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'products') THEN
+    RAISE EXCEPTION 'La tabla products no existe. Ejecuta primero el script de creación de la tabla.';
+  END IF;
+END $$;
+
+-- 2. Habilitar RLS en la tabla products (si no está habilitado)
 ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
 
--- 2. Políticas para administradores (acceso completo)
+-- 3. Eliminar políticas existentes si las hay
 DROP POLICY IF EXISTS "admin_all_products" ON public.products;
+DROP POLICY IF EXISTS "merchant_select_own_products" ON public.products;
+DROP POLICY IF EXISTS "merchant_insert_own_products" ON public.products;
+DROP POLICY IF EXISTS "merchant_update_own_products" ON public.products;
+DROP POLICY IF EXISTS "merchant_delete_own_products" ON public.products;
+DROP POLICY IF EXISTS "public_select_active_products" ON public.products;
+DROP POLICY IF EXISTS "authenticated_select_active_store_products" ON public.products;
+
+-- 4. Crear nuevas políticas RLS
+
+-- Política para administradores (acceso completo)
 CREATE POLICY "admin_all_products" ON public.products
   FOR ALL
   TO authenticated
@@ -17,9 +35,7 @@ CREATE POLICY "admin_all_products" ON public.products
     )
   );
 
--- 3. Políticas para comerciantes (solo sus productos)
--- SELECT: Comerciantes pueden ver sus propios productos
-DROP POLICY IF EXISTS "merchant_select_own_products" ON public.products;
+-- Política para comerciantes - SELECT
 CREATE POLICY "merchant_select_own_products" ON public.products
   FOR SELECT
   TO authenticated
@@ -31,8 +47,7 @@ CREATE POLICY "merchant_select_own_products" ON public.products
     )
   );
 
--- INSERT: Comerciantes pueden crear productos en sus tiendas
-DROP POLICY IF EXISTS "merchant_insert_own_products" ON public.products;
+-- Política para comerciantes - INSERT
 CREATE POLICY "merchant_insert_own_products" ON public.products
   FOR INSERT
   TO authenticated
@@ -44,8 +59,7 @@ CREATE POLICY "merchant_insert_own_products" ON public.products
     )
   );
 
--- UPDATE: Comerciantes pueden actualizar sus productos
-DROP POLICY IF EXISTS "merchant_update_own_products" ON public.products;
+-- Política para comerciantes - UPDATE
 CREATE POLICY "merchant_update_own_products" ON public.products
   FOR UPDATE
   TO authenticated
@@ -57,8 +71,7 @@ CREATE POLICY "merchant_update_own_products" ON public.products
     )
   );
 
--- DELETE: Comerciantes pueden eliminar sus productos
-DROP POLICY IF EXISTS "merchant_delete_own_products" ON public.products;
+-- Política para comerciantes - DELETE
 CREATE POLICY "merchant_delete_own_products" ON public.products
   FOR DELETE
   TO authenticated
@@ -70,8 +83,7 @@ CREATE POLICY "merchant_delete_own_products" ON public.products
     )
   );
 
--- 4. Políticas para acceso público (solo lectura de productos activos)
-DROP POLICY IF EXISTS "public_select_active_products" ON public.products;
+-- Política para acceso público (solo productos activos)
 CREATE POLICY "public_select_active_products" ON public.products
   FOR SELECT
   TO anon, authenticated
@@ -79,8 +91,7 @@ CREATE POLICY "public_select_active_products" ON public.products
     status = 'active'
   );
 
--- 5. Política adicional para usuarios autenticados que quieran ver productos de tiendas activas
-DROP POLICY IF EXISTS "authenticated_select_active_store_products" ON public.products;
+-- Política adicional para usuarios autenticados
 CREATE POLICY "authenticated_select_active_store_products" ON public.products
   FOR SELECT
   TO authenticated
@@ -93,16 +104,25 @@ CREATE POLICY "authenticated_select_active_store_products" ON public.products
     )
   );
 
--- 6. Verificar que las políticas se crearon correctamente
+-- 5. Verificar que las políticas se crearon correctamente
+SELECT 
+  'Políticas aplicadas a products:' as message;
+
 SELECT 
   schemaname,
   tablename,
   policyname,
   permissive,
   roles,
-  cmd,
-  qual,
-  with_check
+  cmd
 FROM pg_policies 
 WHERE tablename = 'products'
 ORDER BY policyname;
+
+-- 6. Verificar el estado de RLS
+SELECT 
+  schemaname,
+  tablename,
+  rowsecurity
+FROM pg_tables 
+WHERE tablename = 'products'; 

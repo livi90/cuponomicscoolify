@@ -157,7 +157,7 @@ export function Header() {
                 variant="ghost"
                 className={cn(
                   "bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600 font-semibold px-4 py-2 rounded-full shadow-md transition-all duration-200 hover:shadow-lg",
-                  (isActive("/buscar-ofertas") || isActive("/productos") || isActive("/cupones")) &&
+                  (isActive("/buscar-ofertas") || isActive("/productos-en-oferta") || isActive("/ofertas-populares") || isActive("/cupones")) &&
                     "ring-2 ring-orange-300",
                 )}
               >
@@ -182,7 +182,7 @@ export function Header() {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/productos" className="cursor-pointer w-full flex items-center">
+                <Link href="/productos-en-oferta" className="cursor-pointer w-full flex items-center">
                   <ShoppingBag className="mr-2 h-4 w-4 text-blue-500" />
                   <div>
                     <div className="font-medium">Productos en oferta</div>
@@ -191,7 +191,7 @@ export function Header() {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/productos-en-oferta" className="cursor-pointer w-full flex items-center">
+                <Link href="/ofertas-populares" className="cursor-pointer w-full flex items-center">
                   <Star className="mr-2 h-4 w-4 text-yellow-500" />
                   <div>
                     <div className="font-medium">Ofertas destacadas</div>
@@ -334,7 +334,7 @@ export function Header() {
                     Cupones de descuento
                   </Link>
                   <Link
-                    href="/productos"
+                    href="/productos-en-oferta"
                     className="text-gray-600 hover:text-orange-500 py-1 pl-4 flex items-center"
                     onClick={() => setIsMenuOpen(false)}
                   >
@@ -342,7 +342,7 @@ export function Header() {
                     Productos en oferta
                   </Link>
                   <Link
-                    href="/productos-en-oferta"
+                    href="/ofertas-populares"
                     className="text-gray-600 hover:text-orange-500 py-1 pl-4 flex items-center"
                     onClick={() => setIsMenuOpen(false)}
                   >

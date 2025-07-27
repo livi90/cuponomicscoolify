@@ -14,6 +14,13 @@ import { useLocale } from "@/components/locale-provider"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { Select } from "@/components/ui/select"
 import { useUser } from "@/hooks/use-user"
+import { BannerAd } from "@/components/banners/BannerAd"
+
+// Crear una sola instancia de Supabase para todo el componente
+const supabase = createClient()
+
+// Crear una sola instancia de Supabase para todo el componente
+
 // Mapeo de idioma/región a país
 const LOCALE_TO_COUNTRY: Record<string, string> = {
   "es-MX": "MX",
@@ -205,7 +212,6 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
   useEffect(() => {
     async function fetchData() {
       try {
-        const supabase = createClient()
 
         // Obtener categorías de la tabla categories (usada por tiendas)
         const { data: categoriesData } = await supabase
@@ -389,7 +395,7 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
   useEffect(() => {
     if (!user) return
     setLoadingFavorites(true)
-    const supabase = createClient()
+    
     const fetchFavorites = async () => {
       const { data: favs } = await supabase
         .from("favorites")
@@ -497,7 +503,7 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
       return
     }
     let active = true
-    const supabase = createClient()
+    
     const fetchSuggestions = async () => {
       // Buscar tiendas
       const { data: stores } = await supabase
@@ -557,29 +563,39 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
 
   return (
     <div className="min-h-screen">
-      <header className="bg-gradient-to-b from-orange-50 to-white py-12 md:py-20">
-        <div className="container mx-auto px-4">
+      <header className="relative bg-gradient-to-br from-orange-400 via-orange-200 to-white py-8 md:py-12 overflow-hidden shadow-lg min-h-[180px]">
+        {/* Elementos decorativos animados (más pequeños) */}
+        <div className="absolute -top-8 left-1/4 w-20 h-20 bg-gradient-to-tr from-orange-500 to-yellow-400 rounded-full blur-2xl opacity-30 animate-bounce-slow z-0" />
+        <div className="absolute top-6 right-1/4 w-14 h-14 bg-gradient-to-tr from-yellow-400 to-orange-500 rounded-full blur-2xl opacity-20 animate-bounce-slower z-0" />
+        <div className="absolute left-8 bottom-0 w-10 h-10 bg-gradient-to-tr from-orange-300 to-yellow-200 rounded-full blur-xl opacity-20 animate-bounce-slowest z-0" />
+        {/* Signos de porcentaje 3D (más pequeños) */}
+        <div className="absolute left-8 top-8 text-[2.5rem] font-black text-orange-200 drop-shadow-2xl opacity-50 select-none animate-wiggle">%</div>
+        <div className="absolute right-8 bottom-8 text-[2rem] font-black text-yellow-300 drop-shadow-2xl opacity-40 select-none animate-wiggle-reverse">%</div>
+        <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-2">
               <div className="text-center md:text-left flex-1">
-                <h1 className="text-3xl md:text-5xl font-bold font-genty mb-2 md:mb-0">
-                  Encuentra las mejores ofertas verificadas por la comunidad
+                <h1 className="text-2xl md:text-4xl font-extrabold font-genty mb-1 md:mb-0 text-white drop-shadow-lg animate-fade-in-up">
+                  Encuentra las mejores ofertas <span className="text-yellow-300 animate-pulse">verificadas</span>
                 </h1>
-                <p className="text-gray-600 text-lg">
-                  Miles de cupones y descuentos actualizados diariamente para tus tiendas favoritas
+                <p className="text-white/90 text-base font-semibold drop-shadow-md animate-fade-in-up delay-100">
+                  Miles de cupones y descuentos para tus <span className="text-orange-100 font-bold">tiendas favoritas</span>
                 </p>
               </div>
               <CountryFilter selectedCountry={selectedCountry} setSelectedCountry={setSelectedCountry} />
             </div>
             {autoCountry && !searchParams.country && (
-              <div className="mb-4 text-orange-700 font-semibold text-center md:text-left">
-                Mostrando ofertas disponibles para tu país/región: {COUNTRY_OPTIONS.find(opt => opt.value === autoCountry)?.label || autoCountry}
+              <div className="mb-2 text-orange-900 font-bold text-center md:text-left animate-fade-in-up delay-200 drop-shadow">
+                <span className="inline-flex items-center gap-2 bg-white/80 rounded-full px-4 py-1 shadow border border-orange-200">
+                  <span className="text-orange-600 font-extrabold">{COUNTRY_OPTIONS.find(opt => opt.value === autoCountry)?.label || autoCountry}</span>
+                  <span className="text-xs text-gray-600">Ofertas para tu país/región</span>
+                </span>
               </div>
             )}
-            <div className="relative max-w-2xl mx-auto">
-              <form action="/buscar-ofertas" method="GET" className="flex h-12" autoComplete="off" onSubmit={() => setShowSuggestions(false)}>
+            <div className="relative max-w-2xl mx-auto animate-fade-in-up delay-300">
+              <form action="/buscar-ofertas" method="GET" className="flex h-12 shadow-lg rounded-full overflow-hidden border-2 border-orange-200 bg-white/90" autoComplete="off" onSubmit={() => setShowSuggestions(false)}>
                 <div className="relative flex-grow">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-400 h-5 w-5" />
                   <Input
                     name="search"
                     type="text"
@@ -587,7 +603,7 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
                     value={searchInput}
                     onChange={e => { setSearchInput(e.target.value); setShowSuggestions(true) }}
                     onFocus={() => setShowSuggestions(true)}
-                    className="pl-10 h-12 rounded-l-full border-r-0 focus:border-orange-500"
+                    className="pl-12 h-12 rounded-l-full border-0 focus:ring-2 focus:ring-orange-400 text-base bg-transparent"
                     autoComplete="off"
                   />
                   {showSuggestions && suggestions.length > 0 && (
@@ -596,7 +612,7 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
                         <button
                           key={s.type + s.id}
                           type="button"
-                          className="w-full text-left px-4 py-2 hover:bg-orange-50 text-sm border-b last:border-b-0 border-gray-100"
+                          className="w-full text-left px-4 py-2 hover:bg-orange-50 text-base border-b last:border-b-0 border-gray-100"
                           onClick={() => {
                             setSearchInput(s.label)
                             setShowSuggestions(false)
@@ -616,41 +632,75 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
                     </div>
                   )}
                 </div>
-                <Button type="submit" className="bg-orange-500 hover:bg-orange-600 text-white rounded-r-full px-6 h-12">
+                <Button type="submit" className="bg-orange-500 hover:bg-orange-600 text-white rounded-r-full px-6 h-12 text-base font-bold shadow-none">
                   Buscar
                 </Button>
               </form>
-
-              <div className="mt-3 flex flex-wrap gap-2 justify-center">
-                {popularStores?.slice(0, 5).map((store: any) => (
-                  <Link key={store.id} href={`/buscar-ofertas?store=${store.id}`}>
-                    <Badge variant="outline" className="bg-white hover:bg-gray-50 cursor-pointer">
-                      {store.name}
-                    </Badge>
-                  </Link>
-                ))}
-              </div>
             </div>
           </div>
         </div>
       </header>
+      <BannerAd position="top" />
 
       <main className="container mx-auto px-4 py-12">
         {/* Aviso de acceso libre a las ofertas (cerrable) */}
         {showFreeAccessNotice && (
-          <section className="w-full bg-green-50 border border-green-200 rounded-lg p-4 mb-8 text-center relative">
+          <section className="w-full bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-6 mb-8 text-center relative shadow-lg">
             <button
-              className="absolute top-2 right-2 text-green-700 hover:text-green-900 text-xl font-bold"
+              className="absolute top-3 right-3 text-emerald-600 hover:text-emerald-800 text-xl font-bold bg-white rounded-full w-8 h-8 flex items-center justify-center shadow hover:shadow-md transition-all"
               aria-label="Cerrar aviso"
               onClick={() => setShowFreeAccessNotice(false)}
             >
               ×
             </button>
-            <span className="text-green-800 font-semibold text-base">
-              ¡No necesitas estar registrado para usar las ofertas de Cuponomics! Puedes aprovechar todos los descuentos sin crear cuenta.
+            <span className="text-emerald-800 font-bold text-lg">
+              🎉 ¡No necesitas estar registrado para usar las ofertas de Cuponomics! Puedes aprovechar todos los descuentos sin crear cuenta.
             </span>
           </section>
         )}
+
+        {/* Tiendas Populares - Movido a una sección principal */}
+        <section className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-gray-800">Tiendas Populares</h2>
+            <Link href="/ofertas-populares">
+              <Button size="sm" variant="outline" className="text-gray-600 border-gray-200 hover:bg-gray-50">
+                <TrendingUp className="h-4 w-4 mr-1" />
+                Ver Ofertas Populares
+              </Button>
+            </Link>
+          </div>
+          <div className="bg-white rounded-2xl shadow-lg p-6 overflow-x-auto border border-gray-200">
+            <div className="flex gap-6 sm:grid sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 sm:gap-4">
+              {popularStores.length > 0 ? (
+                popularStores.map((store: any) => (
+                  <Link href={`/tiendas/${store.id}`} key={store.id} className="flex flex-col items-center group text-center min-w-[120px] max-w-[140px] mx-auto transition-all duration-300 hover:scale-110">
+                    {/* Marco cuadrado con sombra para el logo */}
+                    <div className="w-16 h-16 bg-white rounded-xl shadow-md border border-gray-200 flex items-center justify-center mb-3 group-hover:shadow-lg group-hover:border-gray-300 transition-all duration-300">
+                      {store.logo_url ? (
+                        <Image
+                          src={store.logo_url || "/placeholder.svg?height=60&width=60"}
+                          alt={store.name}
+                          width={48}
+                          height={48}
+                          className="object-contain p-1"
+                        />
+                      ) : (
+                        <Store className="h-8 w-8 text-gray-400" />
+                      )}
+                    </div>
+                    <span className="text-xs font-bold truncate max-w-full text-gray-700 group-hover:text-gray-900 transition-colors">{store.name}</span>
+                  </Link>
+                ))
+              ) : (
+                <div className="col-span-full flex h-20 items-center justify-center rounded-md border border-dashed border-gray-200">
+                  <p className="text-center text-gray-500">No hay tiendas populares disponibles.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+
         {user && (
           <section className="mb-12">
             <h3 className="text-xl font-bold mb-4">Mis favoritos</h3>
@@ -673,389 +723,389 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
         )}
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Filtros Sidebar */}
-          <div className="lg:w-1/4">
+          <aside className="lg:w-1/4">
             <div className="sticky top-24">
-              <div className="bg-white rounded-lg shadow-md p-6 max-h-[60vh] overflow-y-auto">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-bold flex items-center gap-2">
-                  <Filter className="h-5 w-5" />
-                  Filtros
-                </h3>
-                <Link href="/buscar-ofertas">
-                  <Button variant="ghost" size="sm" className="text-orange-500 hover:text-orange-600">
-                    Limpiar
-                  </Button>
-                </Link>
-              </div>
+              <div className="bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-50 rounded-2xl shadow-lg p-6 max-h-[80vh] overflow-y-auto border border-slate-200">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-lg font-bold flex items-center gap-3 bg-gradient-to-r from-slate-700 to-gray-700 bg-clip-text text-transparent">
+                    <Filter className="h-6 w-6 text-slate-600" />
+                    Filtros
+                  </h3>
+                  <Link href="/buscar-ofertas">
+                    <Button variant="ghost" size="sm" className="text-slate-600 hover:text-slate-800 hover:bg-slate-100">
+                      Limpiar
+                    </Button>
+                  </Link>
+                </div>
+                <div className="grid gap-6">
 
-              <div className="space-y-6">
-                <div>
-                  <h4 className="font-medium mb-3">Categorías</h4>
-                  <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
-                    {categories && categories.length > 0 ? (
-                        categories.map((category: any) => (
-                        <div key={category} className="flex items-center">
+                  <div>
+                    <h4 className="font-bold mb-3 text-slate-700 flex items-center gap-2">
+                      <span className="w-2 h-2 bg-gradient-to-r from-orange-400 to-red-500 rounded-full"></span>
+                      Categorías
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {categories && categories.length > 0 ? (
+                          categories.map((category: any, index: number) => {
+                            const colors = [
+                              'from-orange-400 to-red-500',
+                              'from-red-400 to-pink-500',
+                              'from-pink-400 to-rose-500'
+                            ]
+                            const colorClass = colors[index % colors.length]
+                            return (
+                              <Link
+                                key={category}
+                                href={`/buscar-ofertas?category=${encodeURIComponent(category)}`}
+                                className={`flex items-center px-3 py-2 rounded-full text-xs font-bold border transition-all duration-200 hover:scale-105 ${
+                                  searchParams.category === category 
+                                    ? `bg-gradient-to-r ${colorClass} text-white border-transparent shadow-lg` 
+                                    : `bg-white border-slate-200 text-slate-700 hover:border-slate-300 hover:shadow-md`
+                                }`}
+                              >
+                                {category}
+                              </Link>
+                            )
+                          })
+                      ) : (
+                        <p className="text-xs text-slate-500">No hay categorías disponibles.</p>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="font-bold mb-3 text-slate-700 flex items-center gap-2">
+                      <span className="w-2 h-2 bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full"></span>
+                      Descuento
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {["10", "25", "50", "70"].map((discount, index) => {
+                        const colors = [
+                          'from-emerald-400 to-teal-500',
+                          'from-teal-400 to-cyan-500',
+                          'from-cyan-400 to-blue-500',
+                          'from-blue-400 to-indigo-500'
+                        ]
+                        const colorClass = colors[index]
+                        return (
                           <Link
-                            href={`/buscar-ofertas?category=${encodeURIComponent(category)}`}
-                            className={`flex items-center w-full text-sm py-1 px-2 rounded hover:bg-orange-50 ${
-                              searchParams.category === category ? "bg-orange-50 text-orange-600 font-medium" : ""
+                            key={discount}
+                            href={`/buscar-ofertas?minDiscount=${discount}${searchParams.category ? `&category=${searchParams.category}` : ""}${searchParams.store ? `&store=${searchParams.store}` : ""}${searchParams.type ? `&type=${searchParams.type}` : ""}`}
+                            className={`flex items-center px-3 py-2 rounded-full text-xs font-bold border transition-all duration-200 hover:scale-105 ${
+                              searchParams.minDiscount === discount 
+                                ? `bg-gradient-to-r ${colorClass} text-white border-transparent shadow-lg` 
+                                : `bg-white border-slate-200 text-slate-700 hover:border-slate-300 hover:shadow-md`
                             }`}
                           >
-                            {category}
+                            {discount}% o más
                           </Link>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-sm text-gray-500">No hay categorías disponibles.</p>
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <h4 className="font-medium mb-3">Descuento</h4>
-                  <div className="space-y-2">
-                    {["10", "25", "50", "70"].map((discount) => (
-                      <div key={discount} className="flex items-center">
-                        <Link
-                          href={`/buscar-ofertas?minDiscount=${discount}${
-                            searchParams.category ? `&category=${searchParams.category}` : ""
-                          }${searchParams.store ? `&store=${searchParams.store}` : ""}${
-                            searchParams.type ? `&type=${searchParams.type}` : ""
-                          }`}
-                          className={`flex items-center w-full text-sm py-1 px-2 rounded hover:bg-orange-50 ${
-                            searchParams.minDiscount === discount ? "bg-orange-50 text-orange-600 font-medium" : ""
-                          }`}
-                        >
-                          {discount}% o más
-                        </Link>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <h4 className="font-medium mb-3">Calificación</h4>
-                  <div className="space-y-2">
-                    {[4, 3, 2, 1].map((rating) => (
-                      <div key={rating} className="flex items-center">
-                        <Link
-                          href={`/buscar-ofertas?minRating=${rating}${
-                            searchParams.category ? `&category=${searchParams.category}` : ""
-                          }${searchParams.store ? `&store=${searchParams.store}` : ""}${
-                            searchParams.type ? `&type=${searchParams.type}` : ""
-                          }`}
-                          className={`flex items-center w-full text-sm py-1 px-2 rounded hover:bg-orange-50 ${
-                            searchParams.minRating === rating.toString()
-                              ? "bg-orange-50 text-orange-600 font-medium"
-                              : ""
-                          }`}
-                        >
-                          {rating}+ <Star className="h-3 w-3 text-orange-500 ml-1" />
-                        </Link>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <h4 className="font-medium mb-3">Tipo</h4>
-                  <div className="space-y-2">
-                    {[
-                      { id: "code", label: "Código de descuento" },
-                      { id: "deal", label: "Oferta" },
-                      { id: "shipping", label: "Envío gratis" },
-                    ].map((type) => (
-                      <div key={type.id} className="flex items-center">
-                        <Link
-                          href={`/buscar-ofertas?type=${type.id}${
-                            searchParams.category ? `&category=${searchParams.category}` : ""
-                          }${searchParams.store ? `&store=${searchParams.store}` : ""}${
-                            searchParams.minDiscount ? `&minDiscount=${searchParams.minDiscount}` : ""
-                          }${searchParams.minRating ? `&minRating=${searchParams.minRating}` : ""}`}
-                          className={`flex items-center w-full text-sm py-1 px-2 rounded hover:bg-orange-50 ${
-                            searchParams.type === type.id ? "bg-orange-50 text-orange-600 font-medium" : ""
-                          }`}
-                        >
-                          {type.label}
-                        </Link>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Filtros activos */}
-              {(searchParams.category ||
-                searchParams.store ||
-                searchParams.type ||
-                searchParams.minDiscount ||
-                searchParams.minRating) && (
-                <div className="mt-6 pt-6 border-t">
-                  <h4 className="font-medium mb-3">Filtros activos</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {searchParams.category && (
-                      <Badge variant="secondary" className="flex items-center gap-1">
-                        <span>Categoría: {searchParams.category}</span>
-                        <Link
-                          href={`/buscar-ofertas${
-                            searchParams.store ? `?store=${searchParams.store}` : ""
-                          }${searchParams.type ? `${searchParams.store ? "&" : "?"}type=${searchParams.type}` : ""}${
-                            searchParams.minDiscount
-                              ? `${searchParams.store || searchParams.type ? "&" : "?"}minDiscount=${searchParams.minDiscount}`
-                              : ""
-                          }${searchParams.minRating ? `${searchParams.store || searchParams.type || searchParams.minDiscount ? "&" : "?"}minRating=${searchParams.minRating}` : ""}`}
-                          className="ml-1 hover:text-orange-500"
-                        >
-                          ×
-                        </Link>
-                      </Badge>
-                    )}
-                    {searchParams.store && (
-                      <Badge variant="secondary" className="flex items-center gap-1">
-                        <span>
-                          Tienda:{" "}
-                          {popularStores.find((store) => store.id === searchParams.store)?.name || searchParams.store}
-                        </span>
-                        <Link
-                          href={`/buscar-ofertas${
-                            searchParams.category ? `?category=${searchParams.category}` : ""
-                          }${searchParams.type ? `${searchParams.category ? "&" : "?"}type=${searchParams.type}` : ""}${
-                            searchParams.minDiscount
-                              ? `${searchParams.category || searchParams.type ? "&" : "?"}minDiscount=${searchParams.minDiscount}`
-                              : ""
-                          }${searchParams.minRating ? `${searchParams.category || searchParams.type || searchParams.minDiscount ? "&" : "?"}minRating=${searchParams.minRating}` : ""}`}
-                          className="ml-1 hover:text-orange-500"
-                        >
-                          ×
-                        </Link>
-                      </Badge>
-                    )}
-                    {searchParams.type && (
-                      <Badge variant="secondary" className="flex items-center gap-1">
-                        <span>
-                          Tipo:{" "}
-                          {searchParams.type === "code"
-                            ? "Código"
-                            : searchParams.type === "deal"
-                              ? "Oferta"
-                              : "Envío gratis"}
-                        </span>
-                        <Link
-                          href={`/buscar-ofertas${
-                            searchParams.category ? `?category=${searchParams.category}` : ""
-                          }${searchParams.store ? `${searchParams.category ? "&" : "?"}store=${searchParams.store}` : ""}${
-                            searchParams.minDiscount
-                              ? `${searchParams.category || searchParams.store ? "&" : "?"}minDiscount=${searchParams.minDiscount}`
-                              : ""
-                          }${searchParams.minRating ? `${searchParams.category || searchParams.store || searchParams.minDiscount ? "&" : "?"}minRating=${searchParams.minRating}` : ""}`}
-                          className="ml-1 hover:text-orange-500"
-                        >
-                          ×
-                        </Link>
-                      </Badge>
-                    )}
-                    {searchParams.minDiscount && (
-                      <Badge variant="secondary" className="flex items-center gap-1">
-                        <span>Descuento: {searchParams.minDiscount}% o más</span>
-                        <Link
-                          href={`/buscar-ofertas${
-                            searchParams.category ? `?category=${searchParams.category}` : ""
-                          }${searchParams.store ? `${searchParams.category ? "&" : "?"}store=${searchParams.store}` : ""}${
-                            searchParams.type
-                              ? `${searchParams.category || searchParams.store ? "&" : "?"}type=${searchParams.type}`
-                              : ""
-                          }${searchParams.minRating ? `${searchParams.category || searchParams.store || searchParams.type ? "&" : "?"}minRating=${searchParams.minRating}` : ""}`}
-                          className="ml-1 hover:text-orange-500"
-                        >
-                          ×
-                        </Link>
-                      </Badge>
-                    )}
-                    {searchParams.minRating && (
-                      <Badge variant="secondary" className="flex items-center gap-1">
-                        <span>
-                          Calificación: {searchParams.minRating}+ <Star className="h-3 w-3 inline" />
-                        </span>
-                        <Link
-                          href={`/buscar-ofertas${
-                            searchParams.category ? `?category=${searchParams.category}` : ""
-                          }${searchParams.store ? `${searchParams.category ? "&" : "?"}store=${searchParams.store}` : ""}${
-                            searchParams.type
-                              ? `${searchParams.category || searchParams.store ? "&" : "?"}type=${searchParams.type}`
-                              : ""
-                          }${searchParams.minDiscount ? `${searchParams.category || searchParams.store || searchParams.type ? "&" : "?"}minDiscount=${searchParams.minDiscount}` : ""}`}
-                          className="ml-1 hover:text-orange-500"
-                        >
-                          ×
-                        </Link>
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-              )}
-              </div>
-              {/* Tiendas populares SIEMPRE visibles al final del sidebar */}
-              <div className="bg-white rounded-lg shadow-md p-6 mt-4">
-                <h4 className="text-lg font-bold mb-4 text-center">Tiendas populares</h4>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {popularStores.length > 0 ? (
-                    popularStores.map((store: any) => (
-                      <Link href={`/tiendas/${store.id}`} key={store.id} className="flex flex-col items-center group">
-                        <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-1 group-hover:shadow">
-                          {store.logo_url ? (
-                            <Image
-                              src={store.logo_url || "/placeholder.svg?height=60&width=60"}
-                              alt={store.name}
-                              width={48}
-                              height={48}
-                              className="rounded-full object-cover"
-                            />
-                          ) : (
-                            <Store className="h-6 w-6 text-gray-400" />
-                          )}
-                        </div>
-                        <span className="text-xs font-medium text-center truncate max-w-[72px]">{store.name}</span>
-                      </Link>
-                    ))
-                  ) : (
-                    <div className="col-span-full flex h-20 items-center justify-center rounded-md border border-dashed">
-                      <p className="text-center text-gray-500">No hay tiendas disponibles.</p>
+                        )
+                      })}
                     </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Offers List */}
-          <div className="lg:w-3/4">
-            <div ref={mainListRef} />
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-2">
-              <h2 className="text-2xl font-bold">Ofertas</h2>
-              <div className="flex items-center gap-2">
-                <label htmlFor="sort-offers" className="text-sm font-medium text-gray-700">Ordenar por:</label>
-                <select
-                  id="sort-offers"
-                  className="border border-gray-300 rounded px-2 py-1 text-sm"
-                  value={sortOption}
-                  onChange={e => setSortOption(e.target.value)}
-                >
-                  <option value="recent">Más recientes</option>
-                  <option value="popular">Más populares</option>
-                  <option value="discount">Mayor descuento</option>
-                  <option value="rating">Mejor calificación</option>
-                  <option value="expiring">Próximas a vencer</option>
-                  <option value="combo_popular_week">Populares de la semana</option>
-                  <option value="combo_new_popular">Nuevos y populares</option>
-                  <option value="combo_discount_rating">Mayor descuento y mejor calificación</option>
-                </select>
-              </div>
-            </div>
-            <Tabs defaultValue="all" className="mb-8">
-              <div className="flex justify-between items-center mb-6">
-                <TabsList>
-                  <TabsTrigger value="all" className="flex items-center gap-1">
-                    <Tag className="h-4 w-4" />
-                    <span>Todos</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="popular" className="flex items-center gap-1">
-                    <TrendingUp className="h-4 w-4" />
-                    <span>Populares</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="new" className="flex items-center gap-1">
-                    <Clock className="h-4 w-4" />
-                    <span>Nuevos</span>
-                  </TabsTrigger>
-                </TabsList>
-              </div>
-
-              <TabsContent value="all">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 transition-opacity duration-500 animate-fade-in">
-                  {paginatedCoupons.length > 0 ? (
-                    paginatedCoupons.map((coupon: any) => <CouponCard key={coupon.id} coupon={coupon} />)
-                  ) : (
-                    <div className="col-span-full flex h-40 items-center justify-center rounded-md border border-dashed">
-                      <p className="text-center text-gray-500">
-                        No hay cupones disponibles con los filtros seleccionados.
-                      </p>
+                  </div>
+                  <div>
+                    <h4 className="font-bold mb-3 text-slate-700 flex items-center gap-2">
+                      <span className="w-2 h-2 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full"></span>
+                      Calificación
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {[4, 3, 2, 1].map((rating, index) => {
+                        const colors = [
+                          'from-yellow-400 to-orange-500',
+                          'from-orange-400 to-red-500',
+                          'from-red-400 to-pink-500',
+                          'from-pink-400 to-rose-500'
+                        ]
+                        const colorClass = colors[index]
+                        return (
+                          <Link
+                            key={rating}
+                            href={`/buscar-ofertas?minRating=${rating}${searchParams.category ? `&category=${searchParams.category}` : ""}${searchParams.store ? `&store=${searchParams.store}` : ""}${searchParams.type ? `&type=${searchParams.type}` : ""}`}
+                            className={`flex items-center px-3 py-2 rounded-full text-xs font-bold border transition-all duration-200 hover:scale-105 ${
+                              searchParams.minRating === rating.toString() 
+                                ? `bg-gradient-to-r ${colorClass} text-white border-transparent shadow-lg` 
+                                : `bg-white border-slate-200 text-slate-700 hover:border-slate-300 hover:shadow-md`
+                            }`}
+                          >
+                            {rating}+ <Star className="h-3 w-3 ml-1" />
+                          </Link>
+                        )
+                      })}
                     </div>
-                  )}
+                  </div>
+                  <div>
+                    <h4 className="font-bold mb-3 text-slate-700 flex items-center gap-2">
+                      <span className="w-2 h-2 bg-gradient-to-r from-orange-400 to-red-500 rounded-full"></span>
+                      Tipo
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        { id: "code", label: "Código de descuento" },
+                        { id: "deal", label: "Oferta" },
+                        { id: "shipping", label: "Envío gratis" },
+                      ].map((type, index) => {
+                        const colors = [
+                          'from-orange-400 to-red-500',
+                          'from-red-400 to-pink-500',
+                          'from-pink-400 to-rose-500'
+                        ]
+                        const colorClass = colors[index]
+                        return (
+                          <Link
+                            key={type.id}
+                            href={`/buscar-ofertas?type=${type.id}${searchParams.category ? `&category=${searchParams.category}` : ""}${searchParams.store ? `&store=${searchParams.store}` : ""}${searchParams.minDiscount ? `&minDiscount=${searchParams.minDiscount}` : ""}${searchParams.minRating ? `&minRating=${searchParams.minRating}` : ""}`}
+                            className={`flex items-center px-3 py-2 rounded-full text-xs font-bold border transition-all duration-200 hover:scale-105 ${
+                              searchParams.type === type.id 
+                                ? `bg-gradient-to-r ${colorClass} text-white border-transparent shadow-lg` 
+                                : `bg-white border-slate-200 text-slate-700 hover:border-slate-300 hover:shadow-md`
+                            }`}
+                          >
+                            {type.label}
+                          </Link>
+                        )
+                      })}
+                    </div>
+                  </div>
                 </div>
-                {totalPages > 1 && (
-                  <div className="flex justify-center mt-8">
-                    <nav className="flex items-center gap-1">
-                      <Button variant="outline" size="sm" disabled={currentPage === 1} onClick={() => setCurrentPage(currentPage - 1)}>
-                        Anterior
+                
+                {/* Referencia muy sutil a productos de outlet al final */}
+                <div className="mt-6 pt-4 border-t border-slate-200">
+                  <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-lg p-3 border border-emerald-100">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-lg">🛍️</span>
+                      <h4 className="font-medium text-emerald-700 text-xs">¿Buscas outlet?</h4>
+                    </div>
+                    <p className="text-xs text-emerald-600 mb-2">
+                      Productos con descuentos increíbles
+                    </p>
+                    <Link href="/productos-en-oferta">
+                      <Button size="sm" className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-medium text-xs py-1 h-6">
+                        Ver Outlet
                       </Button>
-                      {[...Array(totalPages)].map((_, i) => (
-                        <Button
-                          key={i}
-                          variant="outline"
-                          size="sm"
-                          className={currentPage === i + 1 ? "bg-orange-500 text-white" : ""}
-                          onClick={() => setCurrentPage(i + 1)}
-                        >
-                          {i + 1}
-                        </Button>
-                      ))}
-                      <Button variant="outline" size="sm" disabled={currentPage === totalPages} onClick={() => setCurrentPage(currentPage + 1)}>
-                        Siguiente
-                      </Button>
-                    </nav>
+                    </Link>
+                  </div>
+                </div>
+                
+                {/* Filtros activos */}
+                {(searchParams.category ||
+                  searchParams.store ||
+                  searchParams.type ||
+                  searchParams.minDiscount ||
+                  searchParams.minRating) && (
+                  <div className="mt-6 pt-6 border-t">
+                    <h4 className="font-medium mb-3">Filtros activos</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {searchParams.category && (
+                        <Badge variant="secondary" className="flex items-center gap-1">
+                          <span>Categoría: {searchParams.category}</span>
+                          <Link
+                            href={`/buscar-ofertas${
+                              searchParams.store ? `?store=${searchParams.store}` : ""
+                            }${searchParams.type ? `${searchParams.store ? "&" : "?"}type=${searchParams.type}` : ""}${
+                              searchParams.minDiscount
+                                ? `${searchParams.store || searchParams.type ? "&" : "?"}minDiscount=${searchParams.minDiscount}`
+                                : ""
+                            }${searchParams.minRating ? `${searchParams.store || searchParams.type || searchParams.minDiscount ? "&" : "?"}minRating=${searchParams.minRating}` : ""}`}
+                            className="ml-1 hover:text-orange-500"
+                          >
+                            ×
+                          </Link>
+                        </Badge>
+                      )}
+                      {searchParams.store && (
+                        <Badge variant="secondary" className="flex items-center gap-1">
+                          <span>
+                            Tienda:{" "}
+                            {popularStores.find((store) => store.id === searchParams.store)?.name || searchParams.store}
+                          </span>
+                          <Link
+                            href={`/buscar-ofertas${
+                              searchParams.category ? `?category=${searchParams.category}` : ""
+                            }${searchParams.type ? `${searchParams.category ? "&" : "?"}type=${searchParams.type}` : ""}${
+                              searchParams.minDiscount
+                                ? `${searchParams.category || searchParams.type ? "&" : "?"}minDiscount=${searchParams.minDiscount}`
+                                : ""
+                            }${searchParams.minRating ? `${searchParams.category || searchParams.type || searchParams.minDiscount ? "&" : "?"}minRating=${searchParams.minRating}` : ""}`}
+                            className="ml-1 hover:text-orange-500"
+                          >
+                            ×
+                          </Link>
+                        </Badge>
+                      )}
+                      {searchParams.type && (
+                        <Badge variant="secondary" className="flex items-center gap-1">
+                          <span>
+                            Tipo:{" "}
+                            {searchParams.type === "code"
+                              ? "Código"
+                              : searchParams.type === "deal"
+                                ? "Oferta"
+                                : "Envío gratis"}
+                          </span>
+                          <Link
+                            href={`/buscar-ofertas${
+                              searchParams.category ? `?category=${searchParams.category}` : ""
+                            }${searchParams.store ? `${searchParams.category ? "&" : "?"}store=${searchParams.store}` : ""}${
+                              searchParams.minDiscount
+                                ? `${searchParams.category || searchParams.store ? "&" : "?"}minDiscount=${searchParams.minDiscount}`
+                                : ""
+                            }${searchParams.minRating ? `${searchParams.category || searchParams.store || searchParams.minDiscount ? "&" : "?"}minRating=${searchParams.minRating}` : ""}`}
+                            className="ml-1 hover:text-orange-500"
+                          >
+                            ×
+                          </Link>
+                        </Badge>
+                      )}
+                      {searchParams.minDiscount && (
+                        <Badge variant="secondary" className="flex items-center gap-1">
+                          <span>Descuento: {searchParams.minDiscount}% o más</span>
+                          <Link
+                            href={`/buscar-ofertas${
+                              searchParams.category ? `?category=${searchParams.category}` : ""
+                            }${searchParams.store ? `${searchParams.category ? "&" : "?"}store=${searchParams.store}` : ""}${
+                              searchParams.type
+                                ? `${searchParams.category || searchParams.store ? "&" : "?"}type=${searchParams.type}`
+                                : ""
+                            }${searchParams.minRating ? `${searchParams.category || searchParams.store || searchParams.type ? "&" : "?"}minRating=${searchParams.minRating}` : ""}`}
+                            className="ml-1 hover:text-orange-500"
+                          >
+                            ×
+                          </Link>
+                        </Badge>
+                      )}
+                      {searchParams.minRating && (
+                        <Badge variant="secondary" className="flex items-center gap-1">
+                          <span>
+                            Calificación: {searchParams.minRating}+ <Star className="h-3 w-3 inline" />
+                          </span>
+                          <Link
+                            href={`/buscar-ofertas${
+                              searchParams.category ? `?category=${searchParams.category}` : ""
+                            }${searchParams.store ? `${searchParams.category ? "&" : "?"}store=${searchParams.store}` : ""}${
+                              searchParams.type
+                                ? `${searchParams.category || searchParams.store ? "&" : "?"}type=${searchParams.type}`
+                                : ""
+                            }${searchParams.minDiscount ? `${searchParams.category || searchParams.store || searchParams.type ? "&" : "?"}minDiscount=${searchParams.minDiscount}` : ""}`}
+                            className="ml-1 hover:text-orange-500"
+                          >
+                            ×
+                          </Link>
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                 )}
-              </TabsContent>
-
-              <TabsContent value="popular">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {popularCoupons.length > 0 ? (
-                    popularCoupons.map((coupon: any) => <CouponCard key={coupon.id} coupon={coupon} />)
-                  ) : (
-                    <div className="col-span-full flex h-40 items-center justify-center rounded-md border border-dashed">
-                      <p className="text-center text-gray-500">No hay cupones populares disponibles en este momento.</p>
-                    </div>
-                  )}
-                </div>
-              </TabsContent>
-
-              <TabsContent value="new">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {newCoupons && newCoupons.length > 0 ? (
-                    newCoupons.map((coupon: any) => <CouponCard key={coupon.id} coupon={coupon} />)
-                  ) : (
-                    <div className="col-span-full flex h-40 items-center justify-center rounded-md border border-dashed">
-                      <p className="text-center text-gray-500">No hay cupones nuevos disponibles en este momento.</p>
-                    </div>
-                  )}
-                </div>
-              </TabsContent>
-            </Tabs>
-
-            {/* Pagination */}
-            {coupons.length > 20 && (
-              <div className="flex justify-center mt-8">
-                <nav className="flex items-center gap-1">
-                  <Button variant="outline" size="sm" disabled>
-                    Anterior
-                  </Button>
-                  <Button variant="outline" size="sm" className="bg-orange-500 text-white">
-                    1
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    2
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    3
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    Siguiente
-                  </Button>
-                </nav>
               </div>
-            )}
+            </div>
+          </aside>
+
+            {/* Offers List */}
+            <div className="lg:w-3/4">
+              <div ref={mainListRef} />
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-2">
+                <h2 className="text-2xl font-bold">Ofertas</h2>
+                <div className="flex items-center gap-2">
+                  <label htmlFor="sort-offers" className="text-sm font-medium text-gray-700">Ordenar por:</label>
+                  <select
+                    id="sort-offers"
+                    className="border border-gray-300 rounded px-2 py-1 text-sm"
+                    value={sortOption}
+                    onChange={e => setSortOption(e.target.value)}
+                  >
+                    <option value="recent">Más recientes</option>
+                    <option value="popular">Más populares</option>
+                    <option value="discount">Mayor descuento</option>
+                    <option value="rating">Mejor calificación</option>
+                    <option value="expiring">Próximas a vencer</option>
+                    <option value="combo_popular_week">Populares de la semana</option>
+                    <option value="combo_new_popular">Nuevos y populares</option>
+                    <option value="combo_discount_rating">Mayor descuento y mejor calificación</option>
+                  </select>
+                </div>
+              </div>
+              <Tabs defaultValue="all" className="mb-8">
+                <div className="flex justify-between items-center mb-6">
+                  <TabsList className="bg-gradient-to-r from-slate-100 to-gray-100 rounded-full p-1 flex gap-2 shadow-lg mb-4 border border-slate-200">
+                    <TabsTrigger value="all" className="flex items-center gap-2 px-6 py-3 rounded-full font-bold text-slate-700 data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white transition-all duration-300 hover:scale-105">
+                      <Tag className="h-4 w-4" />
+                      <span>Todos</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="popular" className="flex items-center gap-2 px-6 py-3 rounded-full font-bold text-slate-700 data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500 data-[state=active]:to-teal-500 data-[state=active]:text-white transition-all duration-300 hover:scale-105">
+                      <TrendingUp className="h-4 w-4" />
+                      <span>Populares</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="new" className="flex items-center gap-2 px-6 py-3 rounded-full font-bold text-slate-700 data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white transition-all duration-300 hover:scale-105">
+                      <Clock className="h-4 w-4" />
+                      <span>Nuevos</span>
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
+
+                <TabsContent value="all">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8 transition-opacity duration-500 animate-fade-in">
+                    {paginatedCoupons.length > 0 ? (
+                      paginatedCoupons.map((coupon: any) => <CouponCard key={coupon.id} coupon={coupon} />)
+                    ) : (
+                      <div className="col-span-full flex h-40 items-center justify-center rounded-md border border-dashed">
+                        <p className="text-center text-gray-500">
+                          No hay cupones disponibles con los filtros seleccionados.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                  {totalPages > 1 && (
+                    <div className="flex justify-center mt-8">
+                      <nav className="flex items-center gap-1">
+                        <Button variant="outline" size="sm" disabled={currentPage === 1} onClick={() => setCurrentPage(currentPage - 1)}>
+                          Anterior
+                        </Button>
+                        {[...Array(totalPages)].map((_, i) => (
+                          <Button
+                            key={i}
+                            variant="outline"
+                            size="sm"
+                            className={currentPage === i + 1 ? "bg-orange-500 text-white" : ""}
+                            onClick={() => setCurrentPage(i + 1)}
+                          >
+                            {i + 1}
+                          </Button>
+                        ))}
+                        <Button variant="outline" size="sm" disabled={currentPage === totalPages} onClick={() => setCurrentPage(currentPage + 1)}>
+                          Siguiente
+                        </Button>
+                      </nav>
+                    </div>
+                  )}
+                </TabsContent>
+
+                <TabsContent value="popular">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {popularCoupons.length > 0 ? (
+                      popularCoupons.map((coupon: any) => <CouponCard key={coupon.id} coupon={coupon} />)
+                    ) : (
+                      <div className="col-span-full flex h-40 items-center justify-center rounded-md border border-dashed">
+                        <p className="text-center text-gray-500">No hay cupones populares disponibles en este momento.</p>
+                      </div>
+                    )}
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="new">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {newCoupons && newCoupons.length > 0 ? (
+                      newCoupons.map((coupon: any) => <CouponCard key={coupon.id} coupon={coupon} />)
+                    ) : (
+                      <div className="col-span-full flex h-40 items-center justify-center rounded-md border border-dashed">
+                        <p className="text-center text-gray-500">No hay cupones nuevos disponibles en este momento.</p>
+                      </div>
+                    )}
+                  </div>
+                </TabsContent>
+              </Tabs>
+
+              {/* Pagination - Eliminado ya que el nuevo sistema de paginación está abajo */}
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
 
       {/* Newsletter Section */}
       <section className="py-12 bg-orange-50">

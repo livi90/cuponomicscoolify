@@ -1,6 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 
+
+// Crear una sola instancia de Supabase para todo el componente
+
 // --- CORS headers universales ---
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",

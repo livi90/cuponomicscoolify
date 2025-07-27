@@ -1,0 +1,499 @@
+ANÁLISIS DE BACKUP - SUPABASE CLOUD vs ESQUEMA ACTUAL
+=============================================================
+Fecha: 27/7/2025
+
+RESUMEN DE DIFERENCIAS
+=====================
+
+🚨 ELEMENTOS FALTANTES EN EL ESQUEMA ACTUAL:
+
+📊 TABLAS FALTANTES (55):
+  - AS', 'SELECT INTO', 'ALTER TABLE'
+    , 'CREATE FOREIGN TABLE', 'ALTER FOREIGN TABLE'
+    , 'CREATE VIEW', 'ALTER VIEW'
+    , 'CREATE MATERIALIZED VIEW', 'ALTER MATERIALIZED VIEW'
+    , 'CREATE FUNCTION', 'ALTER FUNCTION'
+    , 'CREATE TRIGGER'
+    , 'CREATE TYPE', 'ALTER TYPE'
+    , 'CREATE RULE'
+    , 'COMMENT'
+    )
+    -- don't notify in case of CREATE TEMP table or other objects created on pg_temp
+    AND cmd.schema_name is distinct from 'pg_temp'
+    THEN
+      NOTIFY pgrst, 'reload schema';
+    END IF;
+  END LOOP;
+END; $$;
+
+
+ALTER FUNCTION extensions.pgrst_ddl_watch
+  - auth.audit_log_entries
+  - auth.flow_state
+  - auth.identities
+  - auth.instances
+  - auth.mfa_amr_claims
+  - auth.mfa_challenges
+  - auth.mfa_factors
+  - auth.one_time_tokens
+  - auth.refresh_tokens
+  - auth.saml_providers
+  - auth.saml_relay_states
+  - auth.schema_migrations
+  - auth.sessions
+  - auth.sso_domains
+  - auth.sso_providers
+  - auth.users
+  - public.affiliate_tokens
+  - public.banner_stats
+  - public.banners
+  - public.brands
+  - public.categories
+  - public.coupon_stats
+  - public.coupons
+  - public.notifications
+  - public.page_views
+  - public.payment_reminders
+  - public.profiles
+  - public.rating_comments
+  - public.rating_votes
+  - public.ratings
+  - public.script_pings
+  - public.store_applications
+  - public.system_logs
+  - public.tracking_clicks
+  - public.tracking_conversions
+  - public.tracking_pixels
+  - public.utm_tracking_exceptions
+  - realtime.messages
+  - realtime.messages_2025_07_18
+  - realtime.messages_2025_07_19
+  - realtime.messages_2025_07_20
+  - realtime.messages_2025_07_21
+  - realtime.messages_2025_07_22
+  - realtime.messages_2025_07_23
+  - realtime.messages_2025_07_24
+  - realtime.schema_migrations
+  - realtime.subscription
+  - storage.buckets
+  - storage.migrations
+  - storage.objects
+  - storage.s3_multipart_uploads
+  - storage.s3_multipart_uploads_parts
+  - supabase_migrations.schema_migrations
+  - supabase_migrations.seed_files
+
+⚙️ FUNCIONES FALTANTES (2):
+  - graphql_public.graphql
+  - graphql_public.graphql
+
+🔔 TRIGGERS FALTANTES (13):
+  - on_auth_user_created (tabla: auth.users)
+  - payment_reminders_updated_at (tabla: public.payment_reminders)
+  - trg_deactivate_expired_coupons (tabla: public.coupons)
+  - trigger_auto_create_store_on_approval (tabla: public.store_applications)
+  - trigger_auto_generate_pixel_id (tabla: public.tracking_pixels)
+  - update_coupons_updated_at (tabla: public.coupons)
+  - update_profiles_updated_at (tabla: public.profiles)
+  - update_rating_comments_updated_at (tabla: public.rating_comments)
+  - update_ratings_updated_at (tabla: public.ratings)
+  - update_store_applications_updated_at (tabla: public.store_applications)
+  - update_stores_updated_at (tabla: public.stores)
+  - tr_check_filters (tabla: realtime.subscription)
+  - update_objects_updated_at (tabla: storage.objects)
+
+🔒 POLÍTICAS RLS FALTANTES (1):
+  - tracking_clicks_public_insert ON public.tracking_clicks FOR INSERT WITH CHECK (true);
+
+
+--
+-- TOC entry 4456 (class 3256 OID 92387)
+-- Name: tracking_clicks tracking_clicks_public_select; Type: POLICY; Schema: public; Owner: postgres
+--
+
+CREATE POLICY tracking_clicks_public_select (tabla: public.tracking_clicks FOR SELECT USING (true);
+
+
+--
+-- TOC entry 4403 (class 0 OID 96058)
+-- Dependencies: 302
+-- Name: tracking_conversions; Type: ROW SECURITY; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.tracking_conversions ENABLE ROW LEVEL SECURITY;
+
+--
+-- TOC entry 4404 (class 0 OID 96133)
+-- Dependencies: 303
+-- Name: tracking_pixels; Type: ROW SECURITY; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.tracking_pixels ENABLE ROW LEVEL SECURITY;
+
+--
+-- TOC entry 4401 (class 0 OID 91156)
+-- Dependencies: 299
+-- Name: utm_tracking_exceptions; Type: ROW SECURITY; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.utm_tracking_exceptions ENABLE ROW LEVEL SECURITY;
+
+--
+-- TOC entry 4398 (class 0 OID 17418)
+-- Dependencies: 296
+-- Name: messages; Type: ROW SECURITY; Schema: realtime; Owner: supabase_realtime_admin
+--
+
+ALTER TABLE realtime.messages ENABLE ROW LEVEL SECURITY;
+
+--
+-- TOC entry 4434 (class 3256 OID 53076)
+-- Name: objects Authenticated Users Can Delete Own Files; Type: POLICY; Schema: storage; Owner: supabase_storage_admin
+--
+
+CREATE POLICY)
+
+📈 ÍNDICES FALTANTES (59):
+  - audit_logs_instance_id_idx (tabla: auth.audit_log_entries)
+  - confirmation_token_idx (tabla: auth.users)
+  - email_change_token_current_idx (tabla: auth.users)
+  - email_change_token_new_idx (tabla: auth.users)
+  - factor_id_created_at_idx (tabla: auth.mfa_factors)
+  - flow_state_created_at_idx (tabla: auth.flow_state)
+  - identities_email_idx (tabla: auth.identities)
+  - identities_user_id_idx (tabla: auth.identities)
+  - idx_auth_code (tabla: auth.flow_state)
+  - idx_user_id_auth_method (tabla: auth.flow_state)
+  - mfa_challenge_created_at_idx (tabla: auth.mfa_challenges)
+  - mfa_factors_user_friendly_name_unique (tabla: auth.mfa_factors)
+  - mfa_factors_user_id_idx (tabla: auth.mfa_factors)
+  - one_time_tokens_relates_to_hash_idx (tabla: auth.one_time_tokens)
+  - one_time_tokens_token_hash_hash_idx (tabla: auth.one_time_tokens)
+  - one_time_tokens_user_id_token_type_key (tabla: auth.one_time_tokens)
+  - reauthentication_token_idx (tabla: auth.users)
+  - recovery_token_idx (tabla: auth.users)
+  - refresh_tokens_instance_id_idx (tabla: auth.refresh_tokens)
+  - refresh_tokens_instance_id_user_id_idx (tabla: auth.refresh_tokens)
+  - refresh_tokens_parent_idx (tabla: auth.refresh_tokens)
+  - refresh_tokens_session_id_revoked_idx (tabla: auth.refresh_tokens)
+  - refresh_tokens_updated_at_idx (tabla: auth.refresh_tokens)
+  - saml_providers_sso_provider_id_idx (tabla: auth.saml_providers)
+  - saml_relay_states_created_at_idx (tabla: auth.saml_relay_states)
+  - saml_relay_states_for_email_idx (tabla: auth.saml_relay_states)
+  - saml_relay_states_sso_provider_id_idx (tabla: auth.saml_relay_states)
+  - sessions_not_after_idx (tabla: auth.sessions)
+  - sessions_user_id_idx (tabla: auth.sessions)
+  - sso_domains_domain_idx (tabla: auth.sso_domains)
+  - sso_domains_sso_provider_id_idx (tabla: auth.sso_domains)
+  - sso_providers_resource_id_idx (tabla: auth.sso_providers)
+  - unique_phone_factor_per_user (tabla: auth.mfa_factors)
+  - user_id_created_at_idx (tabla: auth.sessions)
+  - users_email_partial_key (tabla: auth.users)
+  - users_instance_id_email_idx (tabla: auth.users)
+  - users_instance_id_idx (tabla: auth.users)
+  - users_is_anonymous_idx (tabla: auth.users)
+  - idx_affiliate_tokens_domain (tabla: public.affiliate_tokens)
+  - idx_coupons_expiry_date (tabla: public.coupons)
+  - idx_coupons_is_active (tabla: public.coupons)
+  - idx_coupons_store_id (tabla: public.coupons)
+  - idx_notifications_user_id (tabla: public.notifications)
+  - idx_ratings_coupon_id (tabla: public.ratings)
+  - idx_ratings_user_id (tabla: public.ratings)
+  - idx_store_applications_user_id (tabla: public.store_applications)
+  - idx_stores_owner_id (tabla: public.stores)
+  - idx_stores_store_application_id (tabla: public.stores)
+  - idx_tracking_pixels_active (tabla: public.tracking_pixels)
+  - idx_utm_exceptions_active (tabla: public.utm_tracking_exceptions)
+  - idx_utm_exceptions_domain (tabla: public.utm_tracking_exceptions)
+  - idx_utm_exceptions_store_id (tabla: public.utm_tracking_exceptions)
+  - ix_realtime_subscription_entity (tabla: realtime.subscription)
+  - subscription_subscription_id_entity_filters_key (tabla: realtime.subscription)
+  - bname (tabla: storage.buckets)
+  - bucketid_objname (tabla: storage.objects)
+  - idx_multipart_uploads_list (tabla: storage.s3_multipart_uploads)
+  - idx_objects_bucket_id_name (tabla: storage.objects)
+  - name_prefix_search (tabla: storage.objects)
+
+🔢 SECUENCIAS FALTANTES (3):
+  - auth.refresh_tokens_id_seq
+  - public.invoice_sequence
+  - public.tracking_clicks_id_seq
+
+➕ ELEMENTOS EXTRA EN EL ESQUEMA ACTUAL:
+
+TABLES (26):
+  - storage_buckets_log
+  - featured_products
+  - public.outlet_products
+  - products
+  - script_pings
+  - tracking_clicks
+  - tracking_clicks
+  - tracking_conversions
+  - tracking_conversions
+  - tracking_conversions
+  - tracking_pixels
+  - featured_products
+  - product_stats
+  - tracking_clicks
+  - tracking_conversions
+  - payment_reminders
+  - public.outlet_products
+  - store_images
+  - subscription_plans
+  - user_subscriptions
+  - subscription_payments
+  - tracking_clicks
+  - tracking_conversions
+  - utm_tracking_exceptions
+  - coupons
+  - coupon_stats
+
+FUNCTIONS (14):
+  - create_store_from_application
+  - get_schemas
+  - get_indexes
+  - update_outlet_products_updated_at
+  - detect_device_type
+  - detect_device_type
+  - update_tracking_conversions_updated_at
+  - update_tracking_conversions_updated_at
+  - generate_pixel_id
+  - increment_product_view
+  - add_store_utm_exception
+  - update_payment_reminders_updated_at
+  - update_outlet_products_updated_at
+  - has_active_subscription
+
+TRIGGERS (10):
+  - update_outlet_products_updated_at
+  - calculate_discount_percentage_trigger
+  - validate_outlet_price_trigger
+  - trigger_set_pixel_id
+  - update_featured_products_updated_at
+  - update_featured_products_modtime
+  - check_product_expiration
+  - to
+  - update_outlet_products_updated_at
+  - calculate_discount_percentage_trigger
+
+POLICIES (4):
+  - featured_products_select_policy ON featured_products
+  FOR SELECT USING (status = 'active');
+
+-- Política para permitir a los propietarios de tiendas gestionar sus productos
+CREATE POLICY featured_products_store_owner_policy ON featured_products
+  USING (
+    store_id IN (
+      SELECT id FROM stores WHERE user_id = auth.uid()
+    )
+  );
+
+-- Política para permitir a los administradores gestionar todos los productos
+CREATE POLICY featured_products_admin_policy
+  - admin_all_products ON products
+  FOR ALL
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM profiles
+      WHERE profiles.id = auth.uid()
+      AND profiles.role = 'admin'
+    )
+  );
+
+-- Política para que los comerciantes puedan ver sus propios productos
+CREATE POLICY merchant_select_own_products ON products
+  FOR SELECT
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM stores
+      WHERE stores.id = products.store_id
+      AND stores.owner_id = auth.uid()
+    )
+  );
+
+-- Política para que los comerciantes puedan insertar productos en sus tiendas
+CREATE POLICY merchant_insert_own_products ON products
+  FOR INSERT
+  TO authenticated
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM stores
+      WHERE stores.id = products.store_id
+      AND stores.owner_id = auth.uid()
+    )
+  );
+
+-- Política para que los comerciantes puedan actualizar sus propios productos
+CREATE POLICY merchant_update_own_products ON products
+  FOR UPDATE
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM stores
+      WHERE stores.id = products.store_id
+      AND stores.owner_id = auth.uid()
+    )
+  );
+
+-- Política para que los comerciantes puedan eliminar sus propios productos
+CREATE POLICY merchant_delete_own_products ON products
+  FOR DELETE
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM stores
+      WHERE stores.id = products.store_id
+      AND stores.owner_id = auth.uid()
+    )
+  );
+
+-- Política para que todos los usuarios puedan ver productos activos
+CREATE POLICY public_select_active_products
+  - admin_all_products ON products
+  FOR ALL
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM profiles
+      WHERE profiles.id = auth.uid()
+      AND profiles.role = 'admin'
+    )
+  );
+
+DROP POLICY IF EXISTS merchant_select_own_products ON products;
+CREATE POLICY merchant_select_own_products ON products
+  FOR SELECT
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM stores
+      WHERE stores.id = products.store_id
+      AND stores.owner_id = auth.uid()
+    )
+  );
+
+DROP POLICY IF EXISTS merchant_insert_own_products ON products;
+CREATE POLICY merchant_insert_own_products ON products
+  FOR INSERT
+  TO authenticated
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM stores
+      WHERE stores.id = products.store_id
+      AND stores.owner_id = auth.uid()
+    )
+  );
+
+DROP POLICY IF EXISTS merchant_update_own_products ON products;
+CREATE POLICY merchant_update_own_products ON products
+  FOR UPDATE
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM stores
+      WHERE stores.id = products.store_id
+      AND stores.owner_id = auth.uid()
+    )
+  );
+
+DROP POLICY IF EXISTS merchant_delete_own_products ON products;
+CREATE POLICY merchant_delete_own_products ON products
+  FOR DELETE
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM stores
+      WHERE stores.id = products.store_id
+      AND stores.owner_id = auth.uid()
+    )
+  );
+
+DROP POLICY IF EXISTS public_select_active_products ON products;
+CREATE POLICY public_select_active_products
+  - store_images_select_policy ON store_images
+  FOR SELECT USING (
+    auth.uid() IN (
+      SELECT owner_id FROM stores WHERE id = store_id
+    ) OR 
+    auth.uid() IN (
+      SELECT id FROM profiles WHERE role = 'admin'
+    ) OR
+    TRUE  -- Permitir lectura pública de imágenes
+  );
+
+-- Política para permitir a los propietarios de tiendas insertar imágenes
+CREATE POLICY store_images_insert_policy ON store_images
+  FOR INSERT WITH CHECK (
+    auth.uid() IN (
+      SELECT owner_id FROM stores WHERE id = store_id
+    ) OR 
+    auth.uid() IN (
+      SELECT id FROM profiles WHERE role = 'admin'
+    )
+  );
+
+-- Política para permitir a los propietarios de tiendas actualizar sus imágenes
+CREATE POLICY store_images_update_policy ON store_images
+  FOR UPDATE USING (
+    auth.uid() IN (
+      SELECT owner_id FROM stores WHERE id = store_id
+    ) OR 
+    auth.uid() IN (
+      SELECT id FROM profiles WHERE role = 'admin'
+    )
+  );
+
+-- Política para permitir a los propietarios de tiendas eliminar sus imágenes
+CREATE POLICY store_images_delete_policy
+
+INDEXES (25):
+  - idx_featured_products_store_id
+  - idx_featured_products_category
+  - idx_featured_products_status
+  - idx_featured_products_is_featured
+  - idx_featured_products_is_new
+  - idx_featured_products_is_on_sale
+  - idx_outlet_products_store_id
+  - idx_outlet_products_is_active
+  - idx_outlet_products_is_featured
+  - idx_outlet_products_discount_percentage
+  - idx_outlet_products_created_at
+  - idx_outlet_products_rating
+  - idx_tracking_clicks_clicked_at
+  - idx_tracking_pixels_is_active
+  - idx_tracking_pixels_platform
+  - idx_featured_products_store_id
+  - idx_featured_products_is_featured
+  - idx_featured_products_status
+  - idx_tracking_clicks_clicked_at
+  - idx_outlet_products_store_id
+  - idx_outlet_products_is_active
+  - idx_outlet_products_is_featured
+  - idx_outlet_products_discount_percentage
+  - idx_outlet_products_created_at
+  - idx_store_images_store_id
+
+SEQUENCES (2):
+  - for
+  - invoice_sequence
+
+EXTENSIONS (2):
+  - "uuid-ossp"
+  - "uuid-ossp"
+
+📋 RECOMENDACIONES:
+================
+⚠️ Se encontraron 133 elementos faltantes.
+
+Prioridad de migración:
+1. Tablas (crítico)
+2. Funciones (crítico)
+3. Triggers (crítico)
+4. Políticas RLS (crítico)
+5. Índices (importante)
+6. Secuencias (importante)
+7. Vistas (menor)
+8. Extensiones (menor)
