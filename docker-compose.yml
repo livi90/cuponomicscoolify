@@ -12,10 +12,16 @@ services:
       - NODE_ENV=production
       - PORT=3000
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     # Si tienes variables de entorno, puedes descomentar y configurar:
-    # env_file:
-    #   - .env.local
-    #   - .env.production
+    env_file:
+      - .env.local
+      - .env.production
 
   # Servicio de desarrollo (opcional)
   cuponomics-dev:
@@ -32,6 +38,12 @@ services:
       - /app/node_modules
       - /app/.next
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     profiles:
       - dev
 
