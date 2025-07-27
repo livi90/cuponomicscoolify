@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -136,7 +138,7 @@ export default function BrandsExclusiveInstructionsPage() {
             <Textarea value={unifiedScript} readOnly rows={unifiedScript.split('\n').length} className="font-mono text-xs" />
             <CopyButton value={unifiedScript} />
           </div>
-          <p className="mt-2 text-gray-600 text-sm">Cuando ocurra una venta, llama a <b>window.sendCuponomicsSale({...})</b> con los datos de la compra.</p>
+          <p className="mt-2 text-gray-600 text-sm">Cuando ocurra una venta, llama a <b>window.sendCuponomicsSale()</b> con los datos de la compra.</p>
         </section>
         <section className="mb-10">
           <h2 className="text-xl font-semibold mb-2 text-orange-700">2. Leer el valor UTM en el backend</h2>
@@ -164,6 +166,4 @@ export default function BrandsExclusiveInstructionsPage() {
       </div>
     </div>
   )
-}
-// NOTA: Para que la descarga de PDF funcione, instala las dependencias:
-// npm install jspdf html2canvas 
+} 
