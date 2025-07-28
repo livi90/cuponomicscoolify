@@ -1,187 +1,81 @@
 #!/bin/bash
 
 # Script de deploy para Cuponomics
-# Uso: ./deploy.sh [dev|prod]
+# Este script construye y despliega la aplicación con las variables de entorno correctas
 
-set -e
+set -e  # Salir si hay algún error
 
-# Colores para output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+echo "🚀 Iniciando deploy de Cuponomics..."
 
-# Función para imprimir mensajes
-print_message() {
-    echo -e "${GREEN}[INFO]${NC} $1"
-}
-
-print_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
-}
-
-print_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
-}
-
-print_header() {
-    echo -e "${BLUE}================================${NC}"
-    echo -e "${BLUE}$1${NC}"
-    echo -e "${BLUE}================================${NC}"
-}
+# Verificar si estamos en el directorio correcto
+if [ ! -f "package.json" ]; then
+    echo "❌ Error: No se encontró package.json. Asegúrate de estar en el directorio raíz del proyecto."
+    exit 1
+fi
 
 # Verificar si Docker está instalado
-check_docker() {
-    if ! command -v docker &> /dev/null; then
-        print_error "Docker no está instalado. Por favor instala Docker primero."
-        exit 1
-    fi
-    
-    if ! command -v docker-compose &> /dev/null; then
-        print_error "Docker Compose no está instalado. Por favor instala Docker Compose primero."
-        exit 1
-    fi
-    
-    print_message "Docker y Docker Compose están instalados"
-}
+if ! command -v docker &> /dev/null; then
+    echo "❌ Error: Docker no está instalado. Por favor instala Docker primero."
+    exit 1
+fi
 
-# Verificar archivos de configuración
-check_config() {
-    if [ ! -f ".env.local" ] && [ ! -f ".env.production" ]; then
-        print_warning "No se encontraron archivos de variables de entorno"
-        print_message "Copiando env.example a .env.local..."
-        cp env.example .env.local
-        print_warning "Por favor edita .env.local con tus valores de configuración"
-        read -p "¿Continuar con el deploy? (y/N): " -n 1 -r
-        echo
-        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-            exit 1
-        fi
-    fi
-}
+# Verificar si docker-compose está instalado
+if ! command -v docker-compose &> /dev/null; then
+    echo "❌ Error: docker-compose no está instalado. Por favor instala docker-compose primero."
+    exit 1
+fi
 
-# Limpiar contenedores y imágenes antiguas
-cleanup() {
-    print_header "Limpiando contenedores e imágenes antiguas"
-    
-    # Detener contenedores existentes
-    docker-compose down --remove-orphans 2>/dev/null || true
-    
-    # Limpiar imágenes no utilizadas
-    docker image prune -f
-    
-    print_message "Limpieza completada"
-}
+echo "📋 Verificando variables de entorno..."
 
-# Deploy de desarrollo
-deploy_dev() {
-    print_header "Deploy de Desarrollo"
+# Verificar si existe un archivo .env
+if [ ! -f ".env" ]; then
+    echo "⚠️  Advertencia: No se encontró archivo .env. Usando valores por defecto."
+    echo "📝 Creando archivo .env con valores por defecto..."
     
-    check_docker
-    check_config
-    cleanup
-    
-    print_message "Construyendo imagen de desarrollo..."
-    docker-compose --profile dev build cuponomics-dev
-    
-    print_message "Iniciando servicios de desarrollo..."
-    docker-compose --profile dev up -d cuponomics-dev
-    
-    print_message "Esperando que el servicio esté listo..."
-    sleep 10
-    
-    # Verificar health check
-    if curl -f http://localhost:3001/api/health > /dev/null 2>&1; then
-        print_message "✅ Deploy de desarrollo completado exitosamente!"
-        print_message "🌐 Aplicación disponible en: http://localhost:3001"
-    else
-        print_error "❌ El servicio no está respondiendo correctamente"
-        docker-compose --profile dev logs cuponomics-dev
-        exit 1
-    fi
-}
+    cat > .env << EOF
+# Variables de entorno para Cuponomics
+NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU
+NODE_ENV=production
+PORT=3000
+HOSTNAME=0.0.0.0
+EOF
+    echo "✅ Archivo .env creado con valores por defecto."
+fi
 
-# Deploy de producción
-deploy_prod() {
-    print_header "Deploy de Producción"
-    
-    check_docker
-    check_config
-    cleanup
-    
-    print_message "Construyendo imagen de producción..."
-    docker-compose build cuponomics-app
-    
-    print_message "Iniciando servicios de producción..."
-    docker-compose up -d cuponomics-app
-    
-    print_message "Esperando que el servicio esté listo..."
-    sleep 15
-    
-    # Verificar health check
-    if curl -f http://localhost:3000/api/health > /dev/null 2>&1; then
-        print_message "✅ Deploy de producción completado exitosamente!"
-        print_message "🌐 Aplicación disponible en: http://localhost:3000"
-    else
-        print_error "❌ El servicio no está respondiendo correctamente"
-        docker-compose logs cuponomics-app
-        exit 1
-    fi
-}
+echo "🔧 Construyendo imagen Docker..."
 
-# Mostrar logs
-show_logs() {
-    local service=${1:-cuponomics-app}
-    print_header "Mostrando logs de $service"
-    docker-compose logs -f $service
-}
+# Construir la imagen con las variables de entorno
+docker build \
+    --build-arg NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL:-http://localhost:54321} \
+    --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0} \
+    --build-arg SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU} \
+    -t cuponomics-app .
 
-# Mostrar estado
-show_status() {
-    print_header "Estado de los servicios"
-    docker-compose ps
-    echo
-    print_message "Health checks:"
-    docker-compose ps --format "table {{.Name}}\t{{.Status}}\t{{.Ports}}"
-}
+if [ $? -eq 0 ]; then
+    echo "✅ Imagen construida exitosamente."
+else
+    echo "❌ Error al construir la imagen Docker."
+    exit 1
+fi
 
-# Función principal
-main() {
-    case "${1:-prod}" in
-        "dev")
-            deploy_dev
-            ;;
-        "prod")
-            deploy_prod
-            ;;
-        "logs")
-            show_logs $2
-            ;;
-        "status")
-            show_status
-            ;;
-        "cleanup")
-            cleanup
-            ;;
-        "help"|"-h"|"--help")
-            echo "Uso: $0 [comando]"
-            echo ""
-            echo "Comandos:"
-            echo "  dev      - Deploy de desarrollo (puerto 3001)"
-            echo "  prod     - Deploy de producción (puerto 3000) [default]"
-            echo "  logs     - Mostrar logs de los servicios"
-            echo "  status   - Mostrar estado de los servicios"
-            echo "  cleanup  - Limpiar contenedores e imágenes"
-            echo "  help     - Mostrar esta ayuda"
-            ;;
-        *)
-            print_error "Comando desconocido: $1"
-            echo "Usa '$0 help' para ver los comandos disponibles"
-            exit 1
-            ;;
-    esac
-}
+echo "🚀 Iniciando contenedor..."
 
-# Ejecutar función principal
-main "$@" 
+# Detener contenedores existentes
+docker-compose down 2>/dev/null || true
+
+# Iniciar con docker-compose
+docker-compose -f docker-compose.prod.yml up -d
+
+if [ $? -eq 0 ]; then
+    echo "✅ Contenedor iniciado exitosamente."
+    echo "🌐 La aplicación está disponible en: http://localhost:3000"
+    echo "📊 Para ver los logs: docker-compose -f docker-compose.prod.yml logs -f"
+    echo "🛑 Para detener: docker-compose -f docker-compose.prod.yml down"
+else
+    echo "❌ Error al iniciar el contenedor."
+    exit 1
+fi
+
+echo "🎉 ¡Deploy completado exitosamente!" 
