@@ -2,13 +2,22 @@ import { createClient } from "@/lib/supabase/client"
 
 export interface TrackingClickData {
   coupon_id: string // ← UUID obligatorio
-  coupon_code?: string
-  store_id?: number
-  /* … resto sin cambios … */
+  coupon_code?: string | null
+  store_id?: number | null
+  store_name?: string | null
+  category?: string | null
+  discount_type?: string | null
+  discount_value?: number | null
+  affiliate_id?: string | null
+  utm_source?: string | null
+  utm_medium?: string | null
+  utm_campaign?: string | null
+  utm_content?: string | null
+  utm_term?: string | null
   original_url: string
   tracked_url: string
-  store_url?: string
-  session_id?: string
+  store_url?: string | null
+  session_id?: string | null
 }
 
 // Convierte a número o devuelve null si no es válido

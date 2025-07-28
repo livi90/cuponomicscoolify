@@ -11,7 +11,7 @@ export function Footer() {
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center mb-4">
               <img
-                src="/images/cuponomics-logo.png"
+                src="/images/Cuponomics-logo.png"
                 alt="Cuponomics Logo"
                 className="h-12"
                 style={{ display: "block" }}

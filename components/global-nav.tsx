@@ -137,7 +137,7 @@ export function GlobalNav() {
         <div className="flex items-center h-full">
           <Link href="/" className="flex items-center h-full gap-2">
             <img
-              src="/images/cuponomics-logo.png"
+              src="/images/Cuponomics-logo.png"
               alt="Cuponomics Logo"
               className="h-12 w-auto"
               style={{ display: "block" }}

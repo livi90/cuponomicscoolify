@@ -150,12 +150,45 @@ export function EnhancedCouponButton({
 
       // Copiar cupón al portapapeles si existe
       if (couponCode) {
-        try {
-          await navigator.clipboard.writeText(couponCode)
-          toast.success("¡Cupón copiado! Redirigiendo...", { duration: 1500 })
-        } catch {
-          toast.error("No se pudo copiar el cupón")
+        let copySuccess = false
+        
+        // Intentar copiar usando la API moderna
+        if (navigator.clipboard && window.isSecureContext) {
+          try {
+            await navigator.clipboard.writeText(couponCode)
+            copySuccess = true
+            toast.success("¡Cupón copiado! Redirigiendo...", { duration: 1500 })
+          } catch (error) {
+            console.warn("Error al copiar con navigator.clipboard:", error)
+          }
         }
+        
+        // Fallback: usar método antiguo si la API moderna falla
+        if (!copySuccess) {
+          try {
+            const textArea = document.createElement("textarea")
+            textArea.value = couponCode
+            textArea.style.position = "fixed"
+            textArea.style.left = "-999999px"
+            textArea.style.top = "-999999px"
+            document.body.appendChild(textArea)
+            textArea.focus()
+            textArea.select()
+            const successful = document.execCommand("copy")
+            document.body.removeChild(textArea)
+            
+            if (successful) {
+              copySuccess = true
+              toast.success("¡Cupón copiado! Redirigiendo...", { duration: 1500 })
+            } else {
+              toast.error("No se pudo copiar el cupón automáticamente")
+            }
+          } catch (error) {
+            console.error("Error al copiar con fallback:", error)
+            toast.error("No se pudo copiar el cupón")
+          }
+        }
+        
         // Esperar 1.5 segundos antes de redirigir
         setTimeout(() => {
           window.open(finalUrl, "_blank", "noopener,noreferrer")

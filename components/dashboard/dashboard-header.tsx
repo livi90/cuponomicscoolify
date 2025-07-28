@@ -36,7 +36,7 @@ export function DashboardHeader({ userEmail, userRole }: DashboardHeaderProps) {
         </Sheet>
         <Link href="/" className="mr-6 flex items-center space-x-2 h-full">
           <img
-            src="/images/cuponomics-logo.png"
+            src="/images/Cuponomics-logo.png"
             alt="Cuponomics Logo"
             className="h-16"
             style={{ display: "block" }}
@@ -83,7 +83,7 @@ function MobileNav({ userRole, setOpen }: MobileNavProps) {
       <div className="px-7 py-4 border-b">
         <Link href="/" className="flex items-center h-full" onClick={() => setOpen(false)}>
           <img
-            src="/images/cuponomics-logo.png"
+            src="/images/Cuponomics-logo.png"
             alt="Cuponomics Logo"
             className="h-14"
             style={{ display: "block" }}

@@ -398,7 +398,7 @@ export default function CalificarCupones() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
               <h3 className="text-lg font-bold mb-4">
-                <img src="/images/cuponomics-logo.png" alt="Cuponomics Logo" style={{ height: 32, width: "auto" }} />
+                <img src="/images/Cuponomics-logo.png" alt="Cuponomics Logo" style={{ height: 32, width: "auto" }} />
               </h3>
             </div>
             <div>
@@ -483,7 +483,7 @@ export default function CalificarCupones() {
             </div>
           </div>
           <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-300">
-            <p>&copy; {new Date().getFullYear()} <img src="/images/cuponomics-logo.png" alt="Cuponomics Logo" style={{ display: "inline", height: 24, width: "auto", verticalAlign: "middle" }} />. Todos los derechos reservados.</p>
+            <p>&copy; {new Date().getFullYear()} <img src="/images/Cuponomics-logo.png" alt="Cuponomics Logo" style={{ display: "inline", height: 24, width: "auto", verticalAlign: "middle" }} />. Todos los derechos reservados.</p>
           </div>
         </div>
       </footer>
