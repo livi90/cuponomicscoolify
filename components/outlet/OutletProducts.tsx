@@ -16,6 +16,7 @@ interface OutletProduct {
   outlet_price: number
   discount_percentage: number
   image_url: string
+  product_url?: string
   store_id: string
   store_name: string
   store_logo_url: string
@@ -25,11 +26,18 @@ interface OutletProduct {
   created_at: string
 }
 
+interface StoreSection {
+  store_id: string
+  store_name: string
+  store_logo_url: string
+  products: OutletProduct[]
+}
+
 export function OutletProducts() {
-  const [products, setProducts] = useState<OutletProduct[]>([])
+  const [storeSections, setStoreSections] = useState<StoreSection[]>([])
   const [loading, setLoading] = useState(true)
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [isHovered, setIsHovered] = useState<number | null>(null)
+  const [currentIndices, setCurrentIndices] = useState<Record<string, number>>({})
+  const [isHovered, setIsHovered] = useState<{storeId: string, index: number} | null>(null)
 
   useEffect(() => {
     fetchOutletProducts()
@@ -47,7 +55,7 @@ export function OutletProducts() {
         .eq("is_active", true)
         .order("is_featured", { ascending: false })
         .order("discount_percentage", { ascending: false })
-        .limit(15)
+        .limit(50)
 
       if (error) throw error
 
@@ -59,6 +67,7 @@ export function OutletProducts() {
         outlet_price: product.outlet_price,
         discount_percentage: product.discount_percentage,
         image_url: product.image_url,
+        product_url: product.product_url,
         store_id: product.store_id,
         store_name: product.store?.name || "Tienda",
         store_logo_url: product.store?.logo_url || "",
@@ -68,7 +77,23 @@ export function OutletProducts() {
         created_at: product.created_at
       })) || []
 
-      setProducts(formattedProducts)
+      // Agrupar productos por tienda
+      const storeMap = new Map<string, StoreSection>()
+      
+      formattedProducts.forEach((product) => {
+        if (!storeMap.has(product.store_id)) {
+          storeMap.set(product.store_id, {
+            store_id: product.store_id,
+            store_name: product.store_name,
+            store_logo_url: product.store_logo_url,
+            products: []
+          })
+        }
+        storeMap.get(product.store_id)!.products.push(product)
+      })
+
+      const sections = Array.from(storeMap.values())
+      setStoreSections(sections)
     } catch (error) {
       console.error("Error fetching outlet products:", error)
     } finally {
@@ -76,12 +101,29 @@ export function OutletProducts() {
     }
   }
 
-  const nextSlide = () => {
-    setCurrentIndex((prev) => (prev + 1) % Math.max(1, products.length - 3))
+  const nextSlide = (storeId: string) => {
+    setCurrentIndices((prev) => {
+      const section = storeSections.find(s => s.store_id === storeId)
+      if (!section) return prev
+      const maxIndex = Math.max(0, section.products.length - 4)
+      return {
+        ...prev,
+        [storeId]: (prev[storeId] || 0) + 1 > maxIndex ? 0 : (prev[storeId] || 0) + 1
+      }
+    })
   }
 
-  const prevSlide = () => {
-    setCurrentIndex((prev) => (prev - 1 + Math.max(1, products.length - 3)) % Math.max(1, products.length - 3))
+  const prevSlide = (storeId: string) => {
+    setCurrentIndices((prev) => {
+      const section = storeSections.find(s => s.store_id === storeId)
+      if (!section) return prev
+      const maxIndex = Math.max(0, section.products.length - 4)
+      const currentIndex = prev[storeId] || 0
+      return {
+        ...prev,
+        [storeId]: currentIndex - 1 < 0 ? maxIndex : currentIndex - 1
+      }
+    })
   }
 
   const formatPrice = (price: number) => {
@@ -93,17 +135,21 @@ export function OutletProducts() {
 
   if (loading) {
     return (
-      <div className="relative">
+      <div className="space-y-8">
+        {[...Array(3)].map((_, sectionIndex) => (
+          <div key={sectionIndex} className="relative">
         <div className="flex gap-4 overflow-hidden">
           {[...Array(4)].map((_, i) => (
             <div key={i} className="flex-shrink-0 w-80 h-96 bg-gray-200 rounded-2xl animate-pulse" />
           ))}
         </div>
+          </div>
+        ))}
       </div>
     )
   }
 
-  if (products.length === 0) {
+  if (storeSections.length === 0) {
     return (
       <div className="text-center py-12">
         <ShoppingBag className="w-16 h-16 text-gray-300 mx-auto mb-4" />
@@ -113,10 +159,33 @@ export function OutletProducts() {
   }
 
   return (
-    <div className="relative group">
+    <div className="space-y-12">
+      {storeSections.map((section) => (
+        <div key={section.store_id} className="relative group">
+          {/* Header de la sección de tienda */}
+          <div className="flex items-center gap-3 mb-6">
+            {section.store_logo_url ? (
+              <Image
+                src={section.store_logo_url}
+                alt={section.store_name}
+                width={40}
+                height={40}
+                className="rounded-full object-contain"
+              />
+            ) : (
+              <div className="w-10 h-10 bg-emerald-200 rounded-full flex items-center justify-center">
+                <ShoppingBag className="w-5 h-5 text-emerald-600" />
+              </div>
+            )}
+            <h3 className="text-2xl font-bold text-gray-800">{section.store_name}</h3>
+            <span className="text-sm text-emerald-600 font-semibold bg-emerald-100 px-3 py-1 rounded-full">
+              {section.products.length} productos
+            </span>
+          </div>
+
       {/* Botones de navegación */}
       <button
-        onClick={prevSlide}
+            onClick={() => prevSlide(section.store_id)}
         className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white border border-emerald-200 rounded-full p-2 shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110"
         aria-label="Anterior"
       >
@@ -124,7 +193,7 @@ export function OutletProducts() {
       </button>
       
       <button
-        onClick={nextSlide}
+            onClick={() => nextSlide(section.store_id)}
         className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white border border-emerald-200 rounded-full p-2 shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110"
         aria-label="Siguiente"
       >
@@ -133,13 +202,13 @@ export function OutletProducts() {
 
       {/* Contenedor de productos */}
       <div className="flex gap-6 overflow-hidden transition-transform duration-500 ease-out">
-        {products.slice(currentIndex, currentIndex + 4).map((product, index) => (
+            {section.products.slice(currentIndices[section.store_id] || 0, (currentIndices[section.store_id] || 0) + 4).map((product, index) => (
           <Card
             key={product.id}
             className={`flex-shrink-0 w-80 h-96 relative overflow-hidden transition-all duration-300 cursor-pointer group ${
-              isHovered === index ? "scale-105 ring-2 ring-emerald-300/40" : ""
+                  isHovered?.storeId === section.store_id && isHovered?.index === index ? "scale-105 ring-2 ring-emerald-300/40" : ""
             } bg-gradient-to-br from-white via-emerald-50 to-teal-50 border-0 shadow-lg hover:shadow-xl`}
-            onMouseEnter={() => setIsHovered(index)}
+                onMouseEnter={() => setIsHovered({storeId: section.store_id, index})}
             onMouseLeave={() => setIsHovered(null)}
           >
             {/* Badge de descuento */}
@@ -235,18 +304,27 @@ export function OutletProducts() {
 
               {/* Botón de acción */}
               <div className="mt-auto">
-                <Link href={`/productos/${product.id}`}>
-                  <Button className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold py-2 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl group-hover:scale-105">
-                    <TrendingUp className="w-4 h-4 mr-2" />
-                    ¡Comprar Ahora!
-                  </Button>
-                </Link>
+                {product.product_url ? (
+                  <a href={product.product_url} target="_blank" rel="noopener noreferrer">
+                    <Button className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold py-2 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl group-hover:scale-105">
+                      <TrendingUp className="w-4 h-4 mr-2" />
+                      ¡Comprar Ahora!
+                    </Button>
+                  </a>
+                ) : (
+                  <Link href={`/productos/${product.id}`}>
+                    <Button className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold py-2 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl group-hover:scale-105">
+                      <TrendingUp className="w-4 h-4 mr-2" />
+                      Ver Detalles
+                    </Button>
+                  </Link>
+                )}
               </div>
             </div>
 
             {/* Overlay hover */}
             <div className={`absolute inset-0 bg-emerald-500/5 transition-opacity duration-300 pointer-events-none ${
-              isHovered === index ? "opacity-100" : "opacity-0"
+                  isHovered?.storeId === section.store_id && isHovered?.index === index ? "opacity-100" : "opacity-0"
             }`} />
           </Card>
         ))}
@@ -254,18 +332,20 @@ export function OutletProducts() {
 
       {/* Indicadores */}
       <div className="flex justify-center mt-6 gap-2">
-        {[...Array(Math.ceil(products.length / 4))].map((_, i) => (
+            {[...Array(Math.ceil(section.products.length / 4))].map((_, i) => (
           <button
             key={i}
-            onClick={() => setCurrentIndex(i)}
+                onClick={() => setCurrentIndices(prev => ({...prev, [section.store_id]: i * 4}))}
             className={`w-3 h-3 rounded-full transition-all ${
-              i === Math.floor(currentIndex / 4) 
+                  i === Math.floor((currentIndices[section.store_id] || 0) / 4) 
                 ? "bg-emerald-600 scale-125" 
                 : "bg-gray-300 hover:bg-emerald-400"
             }`}
           />
         ))}
       </div>
+        </div>
+      ))}
     </div>
   )
 } 

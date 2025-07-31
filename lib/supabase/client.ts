@@ -1,4 +1,5 @@
-import { createBrowserClient, type SupabaseClient } from "@supabase/ssr"
+import { createBrowserClient } from "@supabase/ssr"
+import type { SupabaseClient } from "@supabase/supabase-js"
 
 // Declare supabaseClient with a more specific type that allows for null
 let supabaseClient: SupabaseClient | null = null
@@ -31,7 +32,6 @@ export function createClient(): SupabaseClient {
               "X-Client-Info": "cuponomics-web",
             },
           },
-          suppressGetSessionWarning: true,
         })
         return supabaseClient
       } else {
@@ -53,7 +53,6 @@ export function createClient(): SupabaseClient {
               "X-Client-Info": "cuponomics-web",
             },
           },
-          suppressGetSessionWarning: true,
         })
       }
     }
@@ -71,7 +70,6 @@ export function createClient(): SupabaseClient {
           "X-Client-Info": "cuponomics-web",
         },
       },
-      suppressGetSessionWarning: true,
     })
   }
   

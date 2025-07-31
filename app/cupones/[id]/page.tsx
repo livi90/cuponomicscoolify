@@ -4,9 +4,10 @@ import CouponDetailPageClient from "./CouponDetailPageClient"
 export const dynamic = "force-dynamic"
 export const revalidate = 0
 
-export async function generateMetadata({ params }: { params: { id: string } }) {
-  const supabase = createClient()
-  const { data: coupon } = await supabase.from("coupons").select("title, description").eq("id", params.id).single()
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params
+  const supabase = await createClient()
+  const { data: coupon } = await supabase.from("coupons").select("title, description").eq("id", resolvedParams.id).single()
 
   if (!coupon) {
     return {
@@ -21,6 +22,7 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   }
 }
 
-export default async function CouponDetailPage({ params }: { params: { id: string } }) {
-  return <CouponDetailPageClient couponId={params.id} />
+export default async function CouponDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params
+  return <CouponDetailPageClient couponId={resolvedParams.id} />
 }

@@ -6,14 +6,16 @@ export const metadata = {
   description: "Encuentra los mejores cupones y ofertas para ahorrar en tus compras",
 }
 
-export default function BuscarOfertasPage({
+export default async function BuscarOfertasPage({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined }
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
+  const resolvedSearchParams = await searchParams
+  
   return (
     <>
-      <BuscarOfertasClient searchParams={searchParams} />
+      <BuscarOfertasClient searchParams={resolvedSearchParams} />
       {/* Script de Counter.dev */}
       <Script
         src="https://cdn.counter.dev/script.js"

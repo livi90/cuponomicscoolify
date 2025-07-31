@@ -10,8 +10,9 @@ export const metadata = {
   description: "Edita un producto de tu tienda en Cuponomics",
 }
 
-export default async function EditProductPage({ params }: { params: { id: string } }) {
-  const supabase = createClient()
+export default async function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params
+  const supabase = await createClient()
 
   // Verificar si el usuario está autenticado
   const {
@@ -32,7 +33,7 @@ export default async function EditProductPage({ params }: { params: { id: string
         owner_id
       )
     `)
-    .eq("id", params.id)
+    .eq("id", resolvedParams.id)
     .single()
 
   if (!product || product.store.owner_id !== session.user.id) {

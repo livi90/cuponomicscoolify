@@ -10,8 +10,9 @@ export const metadata = {
   description: "Crea un nuevo producto para tu tienda en Cuponomics",
 }
 
-export default async function NewProductPage({ params }: { params: { storeId: string } }) {
-  const supabase = createClient()
+export default async function NewProductPage({ params }: { params: Promise<{ storeId: string }> }) {
+  const resolvedParams = await params
+  const supabase = await createClient()
 
   // Verificar si el usuario está autenticado
   const {
@@ -25,7 +26,7 @@ export default async function NewProductPage({ params }: { params: { storeId: st
   const { data: store } = await supabase
     .from("stores")
     .select("id, name")
-    .eq("id", params.storeId)
+    .eq("id", resolvedParams.storeId)
     .eq("owner_id", session.user.id)
     .single()
 
@@ -38,7 +39,7 @@ export default async function NewProductPage({ params }: { params: { storeId: st
       <h1 className="text-3xl font-bold mb-2">Crear nuevo producto</h1>
       <p className="text-gray-500 mb-6">Tienda: {store.name}</p>
 
-      <ProductForm storeId={params.storeId} />
+      <ProductForm storeId={resolvedParams.storeId} />
     </div>
   )
 }

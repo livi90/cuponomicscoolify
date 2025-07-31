@@ -12,11 +12,12 @@ import { StorePageClient } from "./store-page-client"
 export const dynamic = "force-dynamic"
 export const revalidate = 0
 
-export default async function TiendaPage({ params }: { params: { id: string } }) {
+export default async function TiendaPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params
   const supabase = await createClient()
 
   // Obtener información de la tienda
-  const { data: store } = await supabase.from("stores").select("*").eq("id", params.id).eq("is_active", true).single()
+  const { data: store } = await supabase.from("stores").select("*").eq("id", resolvedParams.id).eq("is_active", true).single()
 
   if (!store) {
     notFound()

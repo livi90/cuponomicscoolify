@@ -38,7 +38,7 @@ async function getAnalytics(supabase: any, { from, to, page }: { from?: string; 
   return { total, byPage, byCountry, byDay };
 }
 
-export default async function AdminAnalyticsPage({ searchParams }: { searchParams?: { from?: string; to?: string; page?: string } }) {
+export default async function AdminAnalyticsPage({ searchParams }: { searchParams?: Promise<{ from?: string; to?: string; page?: string }> }) {
   // Protección de ruta solo para admins
   const cookieStore = cookies();
   const supabase = await createServerSupabase();
@@ -48,9 +48,10 @@ export default async function AdminAnalyticsPage({ searchParams }: { searchParam
   if (!profile || profile.role !== "admin") redirect("/dashboard");
 
   // Filtros
-  const from = searchParams?.from;
-  const to = searchParams?.to;
-  const pageFilter = searchParams?.page;
+  const resolvedSearchParams = await searchParams;
+  const from = resolvedSearchParams?.from;
+  const to = resolvedSearchParams?.to;
+  const pageFilter = resolvedSearchParams?.page;
 
   // Obtener analytics con filtros
   const { total, byPage, byCountry, byDay } = await getAnalytics(supabase, { from, to, page: pageFilter });

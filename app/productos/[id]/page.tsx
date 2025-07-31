@@ -10,9 +10,10 @@ import { ArrowLeft, Store, Tag, Package, Calendar } from "lucide-react"
 export const dynamic = "force-dynamic"
 export const revalidate = 0
 
-export async function generateMetadata({ params }: { params: { id: string } }) {
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params
   const supabase = await createClient()
-  const { data: product } = await supabase.from("products").select("name, description").eq("id", params.id).single()
+  const { data: product } = await supabase.from("products").select("name, description").eq("id", resolvedParams.id).single()
 
   if (!product) {
     return {
@@ -27,7 +28,8 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   }
 }
 
-export default async function ProductDetailPage({ params }: { params: { id: string } }) {
+export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params
   const supabase = await createClient()
 
   // Obtener el producto
@@ -42,7 +44,7 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
         description
       )
     `)
-    .eq("id", params.id)
+    .eq("id", resolvedParams.id)
     .single()
 
   if (!product) {

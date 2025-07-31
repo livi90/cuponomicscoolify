@@ -9,12 +9,13 @@ import { Store, Edit, Globe, Calendar, Package, BarChart3, Code } from "lucide-r
 import { TrackingScriptDisplay } from "@/components/tracking/tracking-script-display"
 
 interface StoreDetailPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default async function StoreDetailPage({ params }: StoreDetailPageProps) {
+  const resolvedParams = await params
   const supabase = await createClient()
 
   // Verificar si el usuario está autenticado
@@ -39,7 +40,7 @@ export default async function StoreDetailPage({ params }: StoreDetailPageProps) 
   const { data: store, error: storeError } = await supabase
     .from("stores")
     .select("*")
-    .eq("id", params.id)
+    .eq("id", resolvedParams.id)
     .eq("owner_id", user.id)
     .single()
 

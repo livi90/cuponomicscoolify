@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { CouponCard } from "@/components/coupons/coupon-card"
 import { Badge } from "@/components/ui/badge"
+import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Search, Star, Clock, Tag, Store, TrendingUp, Filter, Globe } from "lucide-react"
 import { useEffect, useState, useMemo, useRef } from "react"
@@ -15,6 +16,10 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { Select } from "@/components/ui/select"
 import { useUser } from "@/hooks/use-user"
 import { BannerAd } from "@/components/banners/BannerAd"
+import { NewsletterForm } from "@/components/newsletter/newsletter-form"
+import { ViewToggle } from "@/components/view-toggle/view-toggle"
+import { SmartBreadcrumbs } from "@/components/breadcrumbs/smart-breadcrumbs"
+import { BackToTop } from "@/components/ui/back-to-top"
 
 // Crear una sola instancia de Supabase para todo el componente
 const supabase = createClient()
@@ -173,6 +178,8 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
   const [coupons, setCoupons] = useState<any[]>([])
   const [popularCoupons, setPopularCoupons] = useState<any[]>([])
   const [newCoupons, setNewCoupons] = useState<any[]>([])
+  const [outletProducts, setOutletProducts] = useState<any[]>([])
+  const [searchedStores, setSearchedStores] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedCountry, setSelectedCountry] = useState("")
   const [autoCountry, setAutoCountry] = useState("")
@@ -194,6 +201,7 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
   const [showSuggestions, setShowSuggestions] = useState(false)
   const suggestionsRef = useRef<HTMLDivElement>(null)
   const [showFreeAccessNotice, setShowFreeAccessNotice] = useState(true)
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
 
   // Detectar país por idioma del navegador al cargar
   useEffect(() => {
@@ -377,11 +385,54 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
           .order("created_at", { ascending: false })
           .limit(8)
 
+        // Obtener tiendas si hay búsqueda
+        let searchedStores: any[] = []
+        if (searchParams.search) {
+          const searchQuery = searchParams.search as string
+          const { data: storesData } = await supabase
+            .from("stores")
+            .select("*, coupons:coupons(count)")
+            .eq("is_active", true)
+            .ilike("name", `%${searchQuery}%`)
+            .order("created_at", { ascending: false })
+            .limit(10)
+          
+          searchedStores = storesData?.map((store: any) => ({
+            ...store,
+            coupons_count: store.coupons ? store.coupons.length : 0
+          })) || []
+        }
+
+        // Obtener productos de outlet si hay búsqueda
+        let outletProducts: any[] = []
+        if (searchParams.search) {
+          const searchQuery = searchParams.search as string
+          const { data: outletData } = await supabase
+            .from("outlet_products")
+            .select(`
+              *,
+              store:stores(name, logo_url)
+            `)
+            .eq("is_active", true)
+            .or(`name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`)
+            .order("is_featured", { ascending: false })
+            .order("discount_percentage", { ascending: false })
+            .limit(10)
+          
+          outletProducts = outletData?.map((product: any) => ({
+            ...product,
+            store_name: product.store?.name || "Tienda",
+            store_logo_url: product.store?.logo_url || ""
+          })) || []
+        }
+
         setCategories(allCategories)
         setPopularStores(sortedStores)
         setCoupons(filteredCoupons)
         setPopularCoupons(sortedPopularCoupons)
         setNewCoupons(newCouponsData || [])
+        setOutletProducts(outletProducts)
+        setSearchedStores(searchedStores)
       } catch (error) {
         console.error("Error fetching data:", error)
       } finally {
@@ -523,11 +574,19 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
         .select("id, title")
         .ilike("title", `%${searchInput}%`)
         .limit(5)
+      // Buscar productos de outlet
+      const { data: outletProducts } = await supabase
+        .from("outlet_products")
+        .select("id, name")
+        .ilike("name", `%${searchInput}%`)
+        .eq("is_active", true)
+        .limit(5)
       if (active) {
         setSuggestions([
           ...(stores?.map((s: any) => ({ type: "store", id: s.id, label: s.name })) || []),
           ...(categories?.map((c: any) => ({ type: "category", id: c.id, label: c.name })) || []),
           ...(coupons?.map((c: any) => ({ type: "coupon", id: c.id, label: c.title })) || []),
+          ...(outletProducts?.map((p: any) => ({ type: "outlet_product", id: p.id, label: p.name })) || []),
         ])
       }
     }
@@ -599,7 +658,7 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
                   <Input
                     name="search"
                     type="text"
-                    placeholder="Buscar tiendas, productos o cupones..."
+                    placeholder="Buscar tiendas, productos outlet, cupones, categorías..."
                     value={searchInput}
                     onChange={e => { setSearchInput(e.target.value); setShowSuggestions(true) }}
                     onFocus={() => setShowSuggestions(true)}
@@ -622,10 +681,17 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
                               window.location.href = `/buscar-ofertas?category=${s.id}`
                             } else if (s.type === "coupon") {
                               window.location.href = `/cupones/${s.id}`
+                            } else if (s.type === "outlet_product") {
+                              window.location.href = `/productos/${s.id}`
                             }
                           }}
                         >
-                          <span className="font-medium text-orange-600 mr-2">{s.type === "store" ? "Tienda" : s.type === "category" ? "Categoría" : "Cupón"}:</span>
+                          <span className="font-medium text-orange-600 mr-2">
+                            {s.type === "store" ? "Tienda" : 
+                             s.type === "category" ? "Categoría" : 
+                             s.type === "outlet_product" ? "Producto Outlet" : 
+                             "Cupón"}:
+                          </span>
                           {s.label}
                         </button>
                       ))}
@@ -643,17 +709,20 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
       <BannerAd position="top" />
 
       <main className="container mx-auto px-4 py-12">
+        {/* Breadcrumbs */}
+        <SmartBreadcrumbs />
+        
         {/* Aviso de acceso libre a las ofertas (cerrable) */}
         {showFreeAccessNotice && (
-          <section className="w-full bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-6 mb-8 text-center relative shadow-lg">
+          <section className="w-full bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl p-4 mb-6 text-center relative shadow-md">
             <button
-              className="absolute top-3 right-3 text-emerald-600 hover:text-emerald-800 text-xl font-bold bg-white rounded-full w-8 h-8 flex items-center justify-center shadow hover:shadow-md transition-all"
+              className="absolute top-2 right-2 text-yellow-600 hover:text-yellow-800 text-lg font-bold bg-white rounded-full w-6 h-6 flex items-center justify-center shadow hover:shadow-md transition-all"
               aria-label="Cerrar aviso"
               onClick={() => setShowFreeAccessNotice(false)}
             >
               ×
             </button>
-            <span className="text-emerald-800 font-bold text-lg">
+            <span className="text-yellow-800 font-semibold text-base">
               🎉 ¡No necesitas estar registrado para usar las ofertas de Cuponomics! Puedes aprovechar todos los descuentos sin crear cuenta.
             </span>
           </section>
@@ -721,6 +790,137 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
             )}
           </section>
         )}
+
+        {/* Tiendas encontradas en búsqueda */}
+        {searchedStores.length > 0 && (
+          <section className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                <span className="text-2xl">🏪</span>
+                Tiendas encontradas
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {searchedStores.map((store: any) => (
+                <Card key={store.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-105">
+                  <div className="relative h-48 bg-gradient-to-br from-orange-50 to-red-50 flex items-center justify-center">
+                    {store.logo_url ? (
+                      <Image
+                        src={store.logo_url}
+                        alt={store.name}
+                        width={120}
+                        height={120}
+                        className="object-contain max-w-full max-h-full"
+                      />
+                    ) : (
+                      <Store className="h-16 w-16 text-orange-400" />
+                    )}
+                    <div className="absolute top-2 right-2">
+                      <Badge className="bg-orange-600 text-white">
+                        {store.coupons_count} cupones
+                      </Badge>
+                    </div>
+                  </div>
+                  <CardContent className="p-4">
+                    <h3 className="font-bold text-gray-800 mb-2">{store.name}</h3>
+                    {store.description && (
+                      <p className="text-sm text-gray-600 mb-3 line-clamp-2">{store.description}</p>
+                    )}
+                    <div className="flex gap-2">
+                      <Link href={`/tiendas/${store.id}`} className="flex-1">
+                        <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white text-sm">
+                          Ver Tienda
+                        </Button>
+                      </Link>
+                      <Link href={`/buscar-ofertas?store=${store.id}`} className="flex-1">
+                        <Button variant="outline" className="w-full text-orange-600 border-orange-200 hover:bg-orange-50 text-sm">
+                          Ver Cupones
+                        </Button>
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Productos de Outlet encontrados en búsqueda */}
+        {outletProducts.length > 0 && (
+          <section className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                <span className="text-2xl">🛍️</span>
+                Productos de Outlet encontrados
+              </h2>
+              <Link href="/productos-en-oferta">
+                <Button size="sm" variant="outline" className="text-emerald-600 border-emerald-200 hover:bg-emerald-50">
+                  Ver todos los productos outlet
+                </Button>
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {outletProducts.map((product: any) => (
+                <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-105">
+                  <div className="relative h-48">
+                    <Image
+                      src={product.image_url || "/placeholder.svg"}
+                      alt={product.name}
+                      fill
+                      className="object-cover"
+                    />
+                    <div className="absolute top-2 left-2">
+                      <Badge className="bg-emerald-600 text-white">
+                        -{product.discount_percentage}%
+                      </Badge>
+                    </div>
+                  </div>
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      {product.store_logo_url ? (
+                        <Image
+                          src={product.store_logo_url}
+                          alt={product.store_name}
+                          width={20}
+                          height={20}
+                          className="rounded-full"
+                        />
+                      ) : (
+                        <div className="w-5 h-5 bg-emerald-200 rounded-full" />
+                      )}
+                      <span className="text-xs text-gray-600">{product.store_name}</span>
+                    </div>
+                    <h3 className="font-bold text-gray-800 mb-2 line-clamp-2">{product.name}</h3>
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-lg font-bold text-emerald-600">
+                        ${product.outlet_price}
+                      </span>
+                      <span className="text-sm text-gray-400 line-through">
+                        ${product.original_price}
+                      </span>
+                    </div>
+                    <div className="flex gap-2">
+                      {product.product_url ? (
+                        <a href={product.product_url} target="_blank" rel="noopener noreferrer" className="flex-1">
+                          <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-sm">
+                            ¡Comprar Ahora!
+                          </Button>
+                        </a>
+                      ) : (
+                        <Link href={`/productos/${product.id}`} className="flex-1">
+                          <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-sm">
+                            Ver Detalles
+                          </Button>
+                        </Link>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </section>
+        )}
+
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Filtros Sidebar */}
           <aside className="lg:w-1/4">
@@ -1003,33 +1203,36 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
               <div ref={mainListRef} />
               <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-2">
                 <h2 className="text-2xl font-bold">Ofertas</h2>
-                <div className="flex items-center gap-2">
-                  <label htmlFor="sort-offers" className="text-sm font-medium text-gray-700">Ordenar por:</label>
-                  <select
-                    id="sort-offers"
-                    className="border border-gray-300 rounded px-2 py-1 text-sm"
-                    value={sortOption}
-                    onChange={e => setSortOption(e.target.value)}
-                  >
-                    <option value="recent">Más recientes</option>
-                    <option value="popular">Más populares</option>
-                    <option value="discount">Mayor descuento</option>
-                    <option value="rating">Mejor calificación</option>
-                    <option value="expiring">Próximas a vencer</option>
-                    <option value="combo_popular_week">Populares de la semana</option>
-                    <option value="combo_new_popular">Nuevos y populares</option>
-                    <option value="combo_discount_rating">Mayor descuento y mejor calificación</option>
-                  </select>
+                <div className="flex items-center gap-4">
+                  <ViewToggle viewMode={viewMode} onViewChange={setViewMode} />
+                  <div className="flex items-center gap-2">
+                    <label htmlFor="sort-offers" className="text-sm font-medium text-gray-700">Ordenar por:</label>
+                    <select
+                      id="sort-offers"
+                      className="border border-gray-300 rounded px-2 py-1 text-sm"
+                      value={sortOption}
+                      onChange={e => setSortOption(e.target.value)}
+                    >
+                      <option value="recent">Más recientes</option>
+                      <option value="popular">Más populares</option>
+                      <option value="discount">Mayor descuento</option>
+                      <option value="rating">Mejor calificación</option>
+                      <option value="expiring">Próximas a vencer</option>
+                      <option value="combo_popular_week">Populares de la semana</option>
+                      <option value="combo_new_popular">Nuevos y populares</option>
+                      <option value="combo_discount_rating">Mayor descuento y mejor calificación</option>
+                    </select>
+                  </div>
                 </div>
               </div>
               <Tabs defaultValue="all" className="mb-8">
                 <div className="flex justify-between items-center mb-6">
                   <TabsList className="bg-gradient-to-r from-slate-100 to-gray-100 rounded-full p-1 flex gap-2 shadow-lg mb-4 border border-slate-200">
-                    <TabsTrigger value="all" className="flex items-center gap-2 px-6 py-3 rounded-full font-bold text-slate-700 data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white transition-all duration-300 hover:scale-105">
+                    <TabsTrigger value="all" className="flex items-center gap-2 px-6 py-3 rounded-full font-bold text-slate-700 data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white transition-all duration-300 hover:scale-105">
                       <Tag className="h-4 w-4" />
                       <span>Todos</span>
                     </TabsTrigger>
-                    <TabsTrigger value="popular" className="flex items-center gap-2 px-6 py-3 rounded-full font-bold text-slate-700 data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500 data-[state=active]:to-teal-500 data-[state=active]:text-white transition-all duration-300 hover:scale-105">
+                    <TabsTrigger value="popular" className="flex items-center gap-2 px-6 py-3 rounded-full font-bold text-slate-700 data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white transition-all duration-300 hover:scale-105">
                       <TrendingUp className="h-4 w-4" />
                       <span>Populares</span>
                     </TabsTrigger>
@@ -1041,9 +1244,17 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
                 </div>
 
                 <TabsContent value="all">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8 transition-opacity duration-500 animate-fade-in">
+                  <div className={`transition-opacity duration-500 animate-fade-in ${
+                    viewMode === 'grid' 
+                      ? 'grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8' 
+                      : 'space-y-4'
+                  }`}>
                     {paginatedCoupons.length > 0 ? (
-                      paginatedCoupons.map((coupon: any) => <CouponCard key={coupon.id} coupon={coupon} />)
+                      paginatedCoupons.map((coupon: any) => (
+                        <div key={coupon.id} className={viewMode === 'list' ? 'bg-white rounded-lg shadow-md p-6' : ''}>
+                          <CouponCard coupon={coupon} />
+                        </div>
+                      ))
                     ) : (
                       <div className="col-span-full flex h-40 items-center justify-center rounded-md border border-dashed">
                         <p className="text-center text-gray-500">
@@ -1110,24 +1321,16 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
       {/* Newsletter Section */}
       <section className="py-12 bg-orange-50">
         <div className="container mx-auto px-4">
-          <div className="max-w-2xl mx-auto text-center">
-            <h2 className="text-2xl font-bold mb-4">¡No te pierdas ninguna oferta!</h2>
-            <p className="text-gray-600 mb-6">
-              Suscríbete a nuestro boletín y recibe las mejores ofertas directamente en tu correo.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-2">
-              <Input
-                type="email"
-                placeholder="Tu correo electrónico"
-                className="flex-grow rounded-l-full sm:rounded-r-none"
-              />
-              <Button className="bg-orange-500 hover:bg-orange-600 text-white rounded-full sm:rounded-l-none">
-                Suscribirse
-              </Button>
-            </div>
-          </div>
+          <NewsletterForm 
+            source="buscar-ofertas"
+            title="¡No te pierdas ninguna oferta!"
+            description="Suscríbete a nuestro boletín y recibe las mejores ofertas directamente en tu correo."
+          />
         </div>
       </section>
+
+      {/* Botón Volver al Top */}
+      <BackToTop />
     </div>
   )
 }

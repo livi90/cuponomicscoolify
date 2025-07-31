@@ -24,6 +24,9 @@ import { t } from "@/lib/i18n"
 import Head from "next/head"
 import { useState } from "react"
 import Script from "next/script"
+import { RealTimeStats } from "@/components/stats/real-time-stats"
+import { LatestOffersSection } from "@/components/latest-offers/latest-offers-section"
+import { SpecialEventBanner } from "@/components/banners/special-event-banner"
 
 function getLocale() {
   if (typeof window !== "undefined" && window.navigator) {
@@ -64,6 +67,8 @@ export default function HomePage() {
         <meta name="twitter:description" content={t(locale, "home.description")} />
       </Head>
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-yellow-50">
+        {/* Banner de eventos especiales */}
+        <SpecialEventBanner />
         {/* Hero Section */}
         <section className="relative overflow-hidden bg-gradient-to-r from-orange-100 via-orange-50 to-yellow-50 text-gray-900">
           <div className="absolute inset-0 bg-black/5"></div>
@@ -103,21 +108,6 @@ export default function HomePage() {
                       Para Comerciantes
                     </Button>
                   </Link>
-                </div>
-
-                <div className="flex items-center gap-8 pt-4">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold">1.2K+</div>
-                    <div className="text-gray-600 text-sm">Usuarios Activos</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold">1K+</div>
-                    <div className="text-gray-600 text-sm">Cupones Verificados</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold">$9K+</div>
-                    <div className="text-gray-600 text-sm">Ahorros Generados</div>
-                  </div>
                 </div>
                 {/* SEO: Días de ofertas famosos */}
                 <div className="pt-4 flex flex-wrap gap-2">
@@ -393,7 +383,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Stats Section */}
+        {/* Stats Section - Estadísticas en tiempo real */}
         <section className="py-20 bg-gradient-to-r from-orange-500 to-yellow-500 text-white">
           <div className="container mx-auto px-4">
             <div className="text-center mb-16">
@@ -403,24 +393,16 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-4 gap-8">
-              <div className="text-center">
-                <div className="text-4xl lg:text-6xl font-bold mb-2">1.2K+</div>
-                <div className="text-orange-200 text-lg">Usuarios Registrados</div>
-              </div>
-              <div className="text-center">
-                <div className="text-4xl lg:text-6xl font-bold mb-2">1K+</div>
-                <div className="text-orange-200 text-lg">Cupones Verificados</div>
-              </div>
-              <div className="text-center">
-                <div className="text-4xl lg:text-6xl font-bold mb-2">$9K+</div>
-                <div className="text-orange-200 text-lg">Ahorros Generados</div>
-              </div>
-              <div className="text-center">
-                <div className="text-4xl lg:text-6xl font-bold mb-2">75+</div>
-                <div className="text-orange-200 text-lg">Tiendas Asociadas</div>
-              </div>
+            <div className="text-white">
+              <RealTimeStats />
             </div>
+          </div>
+        </section>
+
+        {/* Últimas Ofertas Agregadas */}
+        <section className="py-20 bg-white">
+          <div className="container mx-auto px-4">
+            <LatestOffersSection />
           </div>
         </section>
 

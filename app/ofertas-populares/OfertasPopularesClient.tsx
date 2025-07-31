@@ -13,6 +13,10 @@ import { useLocale } from "@/components/locale-provider"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { useUser } from "@/hooks/use-user"
 import { BannerAd } from "@/components/banners/BannerAd"
+import { NewsletterForm } from "@/components/newsletter/newsletter-form"
+
+// Crear una sola instancia de Supabase para todo el componente
+const supabase = createClient()
 
 export const dynamic = "force_dynamic"
 export const revalidate = 0
@@ -502,22 +506,12 @@ export default function OfertasPopularesClient({ searchParams }: OfertasPopulare
       {/* Newsletter Section */}
       <section className="py-12 bg-gradient-to-r from-purple-50 to-pink-50">
         <div className="container mx-auto px-4">
-          <div className="max-w-2xl mx-auto text-center">
-            <h2 className="text-2xl font-bold mb-4">¡No te pierdas ninguna oferta popular!</h2>
-            <p className="text-gray-600 mb-6">
-              Suscríbete a nuestro boletín y recibe las ofertas más trending directamente en tu correo.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-2">
-              <input
-                type="email"
-                placeholder="Tu correo electrónico"
-                className="flex-grow px-4 py-3 rounded-l-full sm:rounded-r-none border border-purple-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
-              />
-              <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-full sm:rounded-l-none">
-                Suscribirse
-              </Button>
-            </div>
-          </div>
+          <NewsletterForm 
+            source="ofertas-populares"
+            title="¡No te pierdas ninguna oferta popular!"
+            description="Suscríbete a nuestro boletín y recibe las ofertas más trending directamente en tu correo."
+            className="text-purple-800"
+          />
         </div>
       </section>
     </div>

@@ -3,7 +3,8 @@ import { redirect } from "next/navigation"
 import EditStoreForm from "./edit-store-form"
 import type { Store } from "@/lib/types"
 
-export default async function EditStorePage({ params }: { params: { id: string } }) {
+export default async function EditStorePage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params
   const supabase = await createClient()
 
   // Verificar si el usuario está autenticado
@@ -23,7 +24,7 @@ export default async function EditStorePage({ params }: { params: { id: string }
   }
 
   // Obtener la tienda
-  const { data: store } = await supabase.from("stores").select("*").eq("id", params.id).single()
+  const { data: store } = await supabase.from("stores").select("*").eq("id", resolvedParams.id).single()
 
   // Verificar si la tienda existe y pertenece al usuario (a menos que sea admin)
   if (!store || (profile.role !== "admin" && store.owner_id !== session.user.id)) {

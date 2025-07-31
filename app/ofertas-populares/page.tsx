@@ -6,14 +6,16 @@ export const metadata = {
   description: "Descubre las ofertas más populares y trending del momento. Los cupones más utilizados y mejor valorados por nuestra comunidad.",
 }
 
-export default function OfertasPopularesPage({
+export default async function OfertasPopularesPage({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined }
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
+  const resolvedSearchParams = await searchParams
+  
   return (
     <>
-      <OfertasPopularesClient searchParams={searchParams} />
+      <OfertasPopularesClient searchParams={resolvedSearchParams} />
       {/* Script de Counter.dev */}
       <Script
         src="https://cdn.counter.dev/script.js"

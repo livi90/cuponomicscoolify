@@ -21,6 +21,7 @@ interface OutletProduct {
   outlet_price: number
   discount_percentage: number
   image_url: string
+  product_url?: string
   store_id: string
   store_name: string
   rating?: number
@@ -38,6 +39,7 @@ export default function AdminOutletProductsPage() {
     description: "",
     original_price: "",
     outlet_price: "",
+    product_url: "",
     image: null as File | null,
     store_id: "",
     rating: "",
@@ -122,6 +124,7 @@ export default function AdminOutletProductsPage() {
         description: form.description,
         original_price: parseFloat(form.original_price),
         outlet_price: parseFloat(form.outlet_price),
+        product_url: form.product_url || null,
         image_url: image_url || (editingId ? products.find(p => p.id === editingId)?.image_url : ""),
         store_id: form.store_id,
         rating: form.rating ? parseFloat(form.rating) : 0,
@@ -160,6 +163,7 @@ export default function AdminOutletProductsPage() {
       description: "",
       original_price: "",
       outlet_price: "",
+      product_url: "",
       image: null,
       store_id: "",
       rating: "",
@@ -176,6 +180,7 @@ export default function AdminOutletProductsPage() {
       description: product.description || "",
       original_price: product.original_price.toString(),
       outlet_price: product.outlet_price.toString(),
+      product_url: product.product_url || "",
       image: null,
       store_id: product.store_id,
       rating: product.rating?.toString() || "",
@@ -279,6 +284,17 @@ export default function AdminOutletProductsPage() {
                 onChange={e => setForm(f => ({ ...f, image: e.target.files?.[0] || null }))} 
                 required={!editingId}
               />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-1">URL del producto</label>
+              <Input 
+                type="url" 
+                placeholder="https://www.ejemplo.com/producto"
+                value={form.product_url} 
+                onChange={e => setForm(f => ({ ...f, product_url: e.target.value }))} 
+              />
+              <p className="text-xs text-gray-500 mt-1">Enlace directo al producto en la tienda (opcional)</p>
             </div>
             
             <div>

@@ -1,0 +1,38 @@
+User-agent: *
+Allow: /
+
+# Permitir acceso a recursos estáticos
+Allow: /images/
+Allow: /gifs/
+Allow: /fonts/
+Allow: /favicon.ico
+Allow: /android-chrome-*.png
+Allow: /apple-touch-icon.png
+Allow: /favicon-*.png
+
+# Bloquear acceso a páginas administrativas y API
+Disallow: /dashboard/
+Disallow: /api/
+Disallow: /login
+Disallow: /admin/
+
+# Bloquear archivos de configuración y desarrollo
+Disallow: /.env
+Disallow: /.git/
+Disallow: /node_modules/
+Disallow: /package.json
+Disallow: /package-lock.json
+Disallow: /tsconfig.json
+Disallow: /tailwind.config.ts
+Disallow: /next.config.mjs
+
+# Bloquear páginas de prueba y debug
+Disallow: /test-*
+Disallow: /debug-*
+Disallow: /storage-test
+
+# Sitemap
+Sitemap: https://cuponomics.com/sitemap.xml
+
+# Crawl-delay para ser respetuoso con el servidor
+Crawl-delay: 1 

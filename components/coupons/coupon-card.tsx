@@ -10,6 +10,7 @@ import { EnhancedCouponButton } from "@/components/tracking/enhanced-coupon-butt
 import { useUser } from "@/hooks/use-user"
 import { Star, Zap, Flame, Clock, Heart, Store } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { NewBadge } from "@/components/ui/new-badge"
 
 interface CouponCardProps {
   coupon: Coupon
@@ -94,6 +95,7 @@ export function CouponCard({ coupon, showStoreInfo = true }: CouponCardProps) {
     >
       {/* BADGES DESTACADOS */}
       <div className="absolute top-3 left-3 flex flex-col gap-1 z-20">
+        <NewBadge createdAt={coupon.created_at} />
         {isExpiringSoon && (
           <span className="flex items-center gap-1 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow animate-pulse">
             <Clock className="w-4 h-4 mr-1" /> ¡Última oportunidad!
