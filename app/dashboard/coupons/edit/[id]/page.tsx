@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertCircle, CheckCircle } from "lucide-react"
+import { ImageUpload } from "@/components/ui/image-upload"
 import type { Coupon, Store } from "@/lib/types"
 
 export default function EditCouponPage() {
@@ -23,6 +24,7 @@ export default function EditCouponPage() {
     description: "",
     code: "",
     coupon_url: "", // Nuevo campo
+    banner_url: "", // Nuevo campo para banner
     discount_value: "",
     discount_type: "percentage",
     start_date: "",
@@ -82,6 +84,7 @@ export default function EditCouponPage() {
           description: couponData.description || "",
           code: couponData.code || "",
           coupon_url: couponData.coupon_url || "", // Nuevo campo
+          banner_url: couponData.banner_url || "", // Nuevo campo para banner
           discount_value: couponData.discount_value?.toString() || "",
           discount_type: couponData.discount_type || "percentage",
           start_date: couponData.start_date ? new Date(couponData.start_date).toISOString().split("T")[0] : "",
@@ -138,6 +141,7 @@ export default function EditCouponPage() {
         description: formData.description || null,
         code: formData.code || null,
         coupon_url: formData.coupon_url || null, // Nuevo campo
+        banner_url: formData.banner_url || null, // Nuevo campo para banner
         discount_value: formData.discount_value ? Number.parseFloat(formData.discount_value) : null,
         discount_type: formData.discount_type || null,
         start_date: formData.start_date || null,
@@ -275,6 +279,21 @@ export default function EditCouponPage() {
                 <p className="text-sm text-gray-500">
                   URL específica donde se puede usar este cupón o ver la oferta. Si no se especifica, se usará la URL
                   general de la tienda.
+                </p>
+              </div>
+
+              {/* Nuevo campo para banner del cupón */}
+              <div className="space-y-2">
+                <Label htmlFor="banner_url">Banner del Cupón (Opcional)</Label>
+                <ImageUpload
+                  value={formData.banner_url}
+                  onChange={(url) => setFormData({ ...formData, banner_url: url })}
+                  bucket="cuponbanner"
+                  label="Banner del cupón"
+                />
+                <p className="text-sm text-gray-500">
+                  Imagen de fondo personalizada para este cupón específico. Si no se sube, se usará el logo de la tienda como fondo.
+                  Tamaño recomendado: 600x400px
                 </p>
               </div>
 

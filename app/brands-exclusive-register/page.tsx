@@ -9,6 +9,7 @@ import { useEffect } from "react"
 import { ImageUpload } from "@/components/ui/image-upload"
 
 export default function PublicBrandsExclusiveRegisterPage() {
+  const supabase = createClient()
   const [form, setForm] = useState({
     brand_name: "",
     website: "",

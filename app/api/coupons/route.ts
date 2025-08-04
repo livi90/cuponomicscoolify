@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
 
-    const { title, description, code, discount_percentage, discount_amount, coupon_url, expires_at, store_id, coupon_type } = body
+    const { title, description, code, discount_percentage, discount_amount, coupon_url, banner_url, expires_at, store_id, coupon_type } = body
 
     // Validaciones básicas
     if (!title || !store_id) {
@@ -44,6 +44,7 @@ export async function POST(request: NextRequest) {
       description: body.description,
       code: body.code,
       coupon_url: body.coupon_url,
+      banner_url: body.banner_url || null,
       expiry_date: body.expires_at || body.expiry_date,
       store_id: body.store_id,
       is_active: true,

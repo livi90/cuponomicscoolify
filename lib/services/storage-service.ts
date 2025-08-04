@@ -10,6 +10,7 @@ export class StorageService {
     PRODUCTS: "products",
     STORES: "stores",
     PROFILES: "profiles",
+    CUPONBANNER: "cuponbanner",
   }
 
   /**
@@ -128,6 +129,16 @@ export class StorageService {
    */
   async uploadProfileImage(file: File, path = ""): Promise<string | null> {
     return this.uploadImage(file, this.BUCKETS.PROFILES, path)
+  }
+
+  /**
+   * Sube una imagen de banner de cupón
+   * @param file Archivo a subir
+   * @param path Subcarpeta opcional
+   * @returns URL de la imagen subida o null si hay error
+   */
+  async uploadCouponBannerImage(file: File, path = ""): Promise<string | null> {
+    return this.uploadImage(file, this.BUCKETS.CUPONBANNER, path)
   }
 }
 

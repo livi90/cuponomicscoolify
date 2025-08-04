@@ -54,6 +54,9 @@ export const ImageUpload = ({
         case "profiles":
           url = await storageService.uploadProfileImage(file, path)
           break
+        case "cuponbanner":
+          url = await storageService.uploadCouponBannerImage(file, path)
+          break
         default:
           url = await storageService.uploadImage(file, bucket, path)
       }

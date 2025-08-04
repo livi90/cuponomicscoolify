@@ -60,6 +60,7 @@ export interface Coupon {
   terms_conditions: string | null
   coupon_type: "code" | "deal" | "free_shipping"
   coupon_url: string | null // Nueva propiedad para URL específica del cupón
+  banner_url: string | null // Nueva propiedad para banner individual del cupón
   is_verified: boolean
   is_active: boolean
   created_at: string

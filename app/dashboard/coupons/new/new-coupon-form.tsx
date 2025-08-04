@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "@/hooks/use-toast"
 import { Settings } from "lucide-react"
+import { ImageUpload } from "@/components/ui/image-upload"
 import type { Store } from "@/lib/types"
 
 interface NewCouponFormProps {
@@ -53,6 +54,7 @@ export default function NewCouponForm({ stores }: NewCouponFormProps) {
     "Oficina",
     "Jardín",
     "Herramientas",
+    "Todas las categorías",
     "Otros"
   ]
   const [formData, setFormData] = useState({
@@ -63,6 +65,7 @@ export default function NewCouponForm({ stores }: NewCouponFormProps) {
     discount_percentage: "",
     discount_amount: "",
     coupon_url: "",
+    banner_url: "",
     expires_at: "",
     type: "percentage" as "percentage" | "fixed",
     coupon_type: "code" as "code" | "deal",
@@ -106,6 +109,7 @@ export default function NewCouponForm({ stores }: NewCouponFormProps) {
           discount_amount: formData.type === "fixed" ? Number.parseFloat(formData.discount_amount) : null,
           expires_at: formData.expires_at ? new Date(formData.expires_at).toISOString() : null,
           coupon_category: formData.coupon_category,
+          banner_url: formData.banner_url || null,
         }),
       })
 
@@ -311,6 +315,20 @@ export default function NewCouponForm({ stores }: NewCouponFormProps) {
               />
               <p className="text-sm text-muted-foreground">
                 URL específica donde los usuarios serán redirigidos al hacer clic en el cupón
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="banner_url">Banner del Cupón (Opcional)</Label>
+              <ImageUpload
+                value={formData.banner_url}
+                onChange={(url) => handleInputChange("banner_url", url)}
+                bucket="cuponbanner"
+                label="Banner del cupón"
+              />
+              <p className="text-sm text-muted-foreground">
+                Imagen de fondo personalizada para este cupón específico. Si no se sube, se usará el logo de la tienda como fondo.
+                Tamaño recomendado: 600x400px
               </p>
             </div>
 

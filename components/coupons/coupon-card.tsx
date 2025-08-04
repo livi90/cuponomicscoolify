@@ -41,7 +41,8 @@ export function CouponCard({ coupon, showStoreInfo = true }: CouponCardProps) {
       : `$${coupon.discount_value || 0} DESCUENTO`
 
   // Determinar qué imagen usar como fondo
-  const backgroundImage = coupon.store?.card_image_url || coupon.store?.logo_url || null
+  // Prioridad: 1. Banner individual del cupón, 2. Imagen de tarjeta de la tienda, 3. Logo de la tienda
+  const backgroundImage = coupon.banner_url || coupon.store?.card_image_url || coupon.store?.logo_url || null
 
   const handleCardClick = (e: React.MouseEvent) => {
     // Prevenir navegación si se hace clic en el botón
