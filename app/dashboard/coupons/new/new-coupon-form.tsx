@@ -53,7 +53,6 @@ export default function NewCouponForm({ stores }: NewCouponFormProps) {
     "Oficina",
     "Jardín",
     "Herramientas",
-    "Todas",
     "Otros"
   ]
   const [formData, setFormData] = useState({
