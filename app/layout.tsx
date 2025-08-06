@@ -43,14 +43,14 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://cuponomics.com'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://cuponomics.app'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
     type: 'website',
     locale: 'es_ES',
-    url: 'https://cuponomics.com',
+    url: 'https://cuponomics.app',
     title: 'Cuponomics - Encuentra las mejores ofertas y cupones verificados',
     description: 'Descubre miles de cupones y descuentos verificados para tus tiendas favoritas. Ahorra dinero en tus compras online.',
     siteName: 'Cuponomics',
@@ -133,11 +133,11 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "WebSite",
               "name": "Cuponomics",
-              "url": "https://cuponomics.com",
+              "url": "https://cuponomics.app",
               "description": "Encuentra las mejores ofertas y cupones verificados para tus tiendas favoritas",
               "potentialAction": {
                 "@type": "SearchAction",
-                "target": "https://cuponomics.com/buscar-ofertas?search={search_term_string}",
+                "target": "https://cuponomics.app/buscar-ofertas?search={search_term_string}",
                 "query-input": "required name=search_term_string"
               },
               "sameAs": [

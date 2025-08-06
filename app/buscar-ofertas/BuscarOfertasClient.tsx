@@ -16,6 +16,7 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { Select } from "@/components/ui/select"
 import { useUser } from "@/hooks/use-user"
 import { BannerAd } from "@/components/banners/BannerAd"
+import { ExtensionBanner } from "@/components/banners/extension-banner"
 import { NewsletterForm } from "@/components/newsletter/newsletter-form"
 import { ViewToggle } from "@/components/view-toggle/view-toggle"
 import { SmartBreadcrumbs } from "@/components/breadcrumbs/smart-breadcrumbs"
@@ -67,7 +68,8 @@ const COUNTRY_TO_LOCALE: Record<string, string> = {
 }
 const COUNTRY_OPTIONS = [
   { value: "", label: "Todos los países" },
-  { value: "no_restriction", label: "No afecta envíos o ventas (global, digital, etc.)" },
+  { value: "no_restriction", label: "Productos digitales y globales" },
+  { value: "include_digital", label: "Mi país + productos digitales" },
   { value: "AR", label: "Argentina" },
   { value: "BO", label: "Bolivia" },
   { value: "BR", label: "Brasil" },
@@ -200,7 +202,7 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
   const [suggestions, setSuggestions] = useState<any[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
   const suggestionsRef = useRef<HTMLDivElement>(null)
-  const [showFreeAccessNotice, setShowFreeAccessNotice] = useState(true)
+  // El banner de extensión se maneja internamente con localStorage
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
 
   // Detectar país por idioma del navegador al cargar
@@ -278,32 +280,43 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
         // Filtrar por término de búsqueda si se especifica
         if (searchParams.search) {
           const searchQuery = searchParams.search as string
+          console.log(`🔍 Aplicando búsqueda: "${searchQuery}"`)
+          // Usar or() correctamente para buscar en múltiples campos
           couponsQuery = couponsQuery.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`)
         }
 
         // Filtrar por categoría si se especifica
         if (searchParams.category) {
+          console.log(`🏷️ Aplicando filtro de categoría: ${searchParams.category}`)
+          
+          // Buscar tiendas por categoría
           const storeIds = await supabase
             .from("stores")
             .select("id")
             .eq("category", searchParams.category)
             .then(({ data }: { data: any }) => data?.map((store: any) => store.id) || [])
 
+          console.log(`🏪 Tiendas encontradas en categoría: ${storeIds.length}`)
+          
+          // Aplicar filtro por tiendas de la categoría
           if (storeIds.length > 0) {
             couponsQuery = couponsQuery.in("store_id", storeIds)
           } else {
-            // Si no hay tiendas en esta categoría, devolver array vacío
-            couponsQuery = couponsQuery.eq("id", "no-results")
+            // Si no hay tiendas en esta categoría, buscar por categoría de cupón
+            console.log(`🔍 No hay tiendas en la categoría, buscando por categoría de cupón`)
+            couponsQuery = couponsQuery.eq("coupon_category", searchParams.category)
           }
         }
 
         // Filtrar por tienda si se especifica
         if (searchParams.store) {
+          console.log(`🏪 Aplicando filtro de tienda: ${searchParams.store}`)
           couponsQuery = couponsQuery.eq("store_id", searchParams.store)
         }
 
         // Filtrar por tipo de cupón si se especifica
         if (searchParams.type) {
+          console.log(`🎫 Aplicando filtro de tipo: ${searchParams.type}`)
           couponsQuery = couponsQuery.eq("coupon_type", searchParams.type)
         }
 
@@ -311,32 +324,105 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
         if (searchParams.minDiscount) {
           const minDiscount = Number.parseInt(searchParams.minDiscount as string, 10)
           if (!isNaN(minDiscount)) {
+            console.log(`💰 Aplicando filtro de descuento mínimo: ${minDiscount}%`)
             couponsQuery = couponsQuery.gte("discount_value", minDiscount)
           }
         }
 
         const { data: couponsData } = await couponsQuery.order("created_at", { ascending: false })
         let filteredCoupons = couponsData || []
+        
+        console.log(`📊 Cupones obtenidos de la base de datos: ${couponsData?.length || 0}`)
+        
+        // Debug: Log para verificar los datos
+        console.log('🔍 Debug filtros:', {
+          searchParams,
+          totalCoupons: couponsData?.length || 0,
+          selectedCountry,
+          filters: {
+            search: searchParams.search,
+            category: searchParams.category,
+            store: searchParams.store,
+            type: searchParams.type,
+            minDiscount: searchParams.minDiscount,
+            minRating: searchParams.minRating
+          }
+        })
+        
+        // Debug: Mostrar algunos cupones para verificar sus valores
+        if (couponsData && couponsData.length > 0) {
+          console.log('📋 Primeros 3 cupones:', couponsData.slice(0, 3).map(c => ({
+            id: c.id,
+            title: c.title,
+            discount_value: c.discount_value,
+            coupon_type: c.coupon_type,
+            coupon_category: c.coupon_category,
+            store_category: c.store?.category
+          })))
+        }
         // Filtrar por país (frontend, ya que store.country viene en store)
-        if (selectedCountry) {
+        if (selectedCountry && selectedCountry !== "") {
+          const beforeCountryFilter = filteredCoupons.length
           filteredCoupons = filteredCoupons.filter((coupon: any) => {
             const storeCountry = coupon.store?.country || ""
+            const storeCategory = coupon.store?.category || ""
+            
+            console.log(`🌍 Cupón ${coupon.id}: país tienda = "${storeCountry}", categoría = "${storeCategory}", país seleccionado = "${selectedCountry}"`)
+            
+            // Categorías que no están limitadas por ubicación geográfica
+            const globalCategories = [
+              "digital", "software", "apps", "online", "streaming", "gaming", 
+              "ebooks", "cursos", "educacion", "servicios", "cloud", "saas",
+              "productos digitales", "servicios digitales", "tecnología digital",
+              "internet", "web", "virtual", "remoto", "digital"
+            ]
+            
+            // Verificar si la tienda pertenece a una categoría global
+            const isGlobalCategory = globalCategories.some(cat => 
+              storeCategory.toLowerCase().includes(cat.toLowerCase())
+            )
+            
+            // Si el país seleccionado es "no_restriction", solo mostrar cupones globales
             if (selectedCountry === "no_restriction") {
               return storeCountry === "no_restriction"
             }
-            return storeCountry === selectedCountry || storeCountry === "no_restriction"
+            
+            // Si el país seleccionado es "include_digital", mostrar cupones del país detectado + digitales
+            if (selectedCountry === "include_digital") {
+              const detectedCountry = autoCountry || "ES" // País detectado automáticamente
+              return storeCountry === detectedCountry || 
+                     storeCountry === "no_restriction" || 
+                     isGlobalCategory ||
+                     storeCountry === "" || 
+                     storeCountry === null
+            }
+            
+            // Si el país seleccionado es específico, mostrar cupones de:
+            // - Ese país específico
+            // - Tiendas globales (no_restriction)
+            // - Tiendas de categorías digitales/globales
+            // - Tiendas sin país configurado (fallback)
+            return storeCountry === selectedCountry || 
+                   storeCountry === "no_restriction" || 
+                   isGlobalCategory ||
+                   storeCountry === "" || 
+                   storeCountry === null
           })
+          console.log(`🌍 Filtro país: ${beforeCountryFilter} -> ${filteredCoupons.length} (país seleccionado: ${selectedCountry})`)
         }
 
         // FILTRO: Ocultar cupones expirados por fecha
+        const beforeExpiryFilter = filteredCoupons.length
         const now = new Date()
         filteredCoupons = filteredCoupons.filter((coupon: any) => {
           if (!coupon.expiry_date) return true // Sin fecha de expiración, mostrar
           return new Date(coupon.expiry_date) >= now // Solo mostrar si no ha expirado
         })
+        console.log(`⏰ Filtro expiración: ${beforeExpiryFilter} -> ${filteredCoupons.length}`)
 
         // Filtrar por calificación mínima si se especifica (post-procesamiento)
         if (searchParams.minRating) {
+          const beforeRatingFilter = filteredCoupons.length
           const minRating = Number.parseInt(searchParams.minRating as string, 10)
           if (!isNaN(minRating)) {
             filteredCoupons = filteredCoupons.filter((coupon: any) => {
@@ -346,6 +432,7 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
               return avgRating >= minRating
             })
           }
+          console.log(`⭐ Filtro calificación: ${beforeRatingFilter} -> ${filteredCoupons.length} (mínimo: ${minRating})`)
         }
 
         // Obtener cupones populares (con más vistas/clicks)
@@ -426,6 +513,8 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
           })) || []
         }
 
+        console.log(`✅ Resultado final: ${filteredCoupons.length} cupones encontrados`)
+        
         setCategories(allCategories)
         setPopularStores(sortedStores)
         setCoupons(filteredCoupons)
@@ -712,21 +801,8 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
         {/* Breadcrumbs */}
         <SmartBreadcrumbs />
         
-        {/* Aviso de acceso libre a las ofertas (cerrable) */}
-        {showFreeAccessNotice && (
-          <section className="w-full bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl p-4 mb-6 text-center relative shadow-md">
-            <button
-              className="absolute top-2 right-2 text-yellow-600 hover:text-yellow-800 text-lg font-bold bg-white rounded-full w-6 h-6 flex items-center justify-center shadow hover:shadow-md transition-all"
-              aria-label="Cerrar aviso"
-              onClick={() => setShowFreeAccessNotice(false)}
-            >
-              ×
-            </button>
-            <span className="text-yellow-800 font-semibold text-base">
-              🎉 ¡No necesitas estar registrado para usar las ofertas de Cuponomics! Puedes aprovechar todos los descuentos sin crear cuenta.
-            </span>
-          </section>
-        )}
+        {/* Banner de extensión del navegador */}
+        <ExtensionBanner />
 
         {/* Tiendas Populares - Movido a una sección principal */}
         <section className="mb-8">
@@ -1039,9 +1115,9 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
                     </h4>
                     <div className="flex flex-wrap gap-2">
                       {[
-                        { id: "code", label: "Código de descuento" },
-                        { id: "deal", label: "Oferta" },
-                        { id: "shipping", label: "Envío gratis" },
+                                { id: "code", label: "Código de descuento" },
+        { id: "deal", label: "Oferta" },
+        { id: "free_shipping", label: "Envío gratis" },
                       ].map((type, index) => {
                         const colors = [
                           'from-orange-400 to-red-500',

@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next'
 import { createClient } from '@/lib/supabase/server'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://cuponomics.com'
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://cuponomics.app'
   
   // Páginas estáticas principales
   const staticPages = [

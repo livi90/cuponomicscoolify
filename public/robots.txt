@@ -32,7 +32,7 @@ Disallow: /debug-*
 Disallow: /storage-test
 
 # Sitemap
-Sitemap: https://cuponomics.com/sitemap.xml
+Sitemap: https://cuponomics.app/sitemap.xml
 
 # Crawl-delay para ser respetuoso con el servidor
 Crawl-delay: 1 
