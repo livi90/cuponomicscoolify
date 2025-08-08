@@ -26,10 +26,7 @@ CREATE INDEX IF NOT EXISTS idx_categories_sort_order ON public.categories(sort_o
 CREATE INDEX IF NOT EXISTS idx_coupon_stats_coupon_id ON public.coupon_stats(coupon_id);
 CREATE INDEX IF NOT EXISTS idx_coupon_stats_date ON public.coupon_stats(date);
 
--- Índices para notifications
-CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON public.notifications(user_id);
-CREATE INDEX IF NOT EXISTS idx_notifications_is_read ON public.notifications(is_read);
-CREATE INDEX IF NOT EXISTS idx_notifications_created_at ON public.notifications(created_at DESC);
+-- Índices para notifications se manejan en social-features.sql
 
 -- Índices para page_views
 CREATE INDEX IF NOT EXISTS idx_page_views_page_path ON public.page_views(page_path);

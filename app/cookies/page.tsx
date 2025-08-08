@@ -167,7 +167,7 @@ export default function CookiesPage() {
           <h2 className="text-2xl font-semibold mb-4">8. Contacto</h2>
           <p className="mb-4">Para consultas sobre esta Política de Cookies:</p>
           <div className="bg-gray-50 p-4 rounded-lg">
-            <p className="text-sm"><strong>Email:</strong> cuponomicsuppor@gmail.com</p>
+            <p className="text-sm"><strong>Email:</strong> hello@cuponomics.app</p>
             <p className="text-sm"><strong>Asunto:</strong> Política de Cookies</p>
           </div>
         </section>

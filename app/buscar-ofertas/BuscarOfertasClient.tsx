@@ -448,13 +448,22 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
           .order("created_at", { ascending: false })
           .limit(20)
 
-        // Ordenar cupones populares por vistas/clicks
+        // Ordenar cupones populares por vistas/clicks y luego por Early Adopters
         const sortedPopularCoupons = popularCouponsData
           ? [...popularCouponsData]
               .sort((a, b) => {
                 const aStats = a.stats ? a.stats.views + a.stats.clicks : 0
                 const bStats = b.stats ? b.stats.views + b.stats.clicks : 0
                 return bStats - aStats
+              })
+              .sort((a, b) => {
+                const aIsEarlyAdopter = a.store?.is_early_adopter || false
+                const bIsEarlyAdopter = b.store?.is_early_adopter || false
+                
+                if (aIsEarlyAdopter === bIsEarlyAdopter) {
+                  return 0
+                }
+                return aIsEarlyAdopter ? -1 : 1
               })
               .slice(0, 8)
           : []
@@ -470,7 +479,22 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
           `)
           .eq("is_active", true)
           .order("created_at", { ascending: false })
-          .limit(8)
+          .limit(20)
+
+        // Ordenar cupones nuevos por fecha y luego por Early Adopters
+        const sortedNewCoupons = newCouponsData
+          ? [...newCouponsData]
+              .sort((a, b) => {
+                const aIsEarlyAdopter = a.store?.is_early_adopter || false
+                const bIsEarlyAdopter = b.store?.is_early_adopter || false
+                
+                if (aIsEarlyAdopter === bIsEarlyAdopter) {
+                  return 0
+                }
+                return aIsEarlyAdopter ? -1 : 1
+              })
+              .slice(0, 8)
+          : []
 
         // Obtener tiendas si hay búsqueda
         let searchedStores: any[] = []
@@ -519,7 +543,7 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
         setPopularStores(sortedStores)
         setCoupons(filteredCoupons)
         setPopularCoupons(sortedPopularCoupons)
-        setNewCoupons(newCouponsData || [])
+        setNewCoupons(sortedNewCoupons || [])
         setOutletProducts(outletProducts)
         setSearchedStores(searchedStores)
       } catch (error) {
@@ -554,9 +578,11 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
     }
   }, [selectedCountry, setLocale])
 
-  // Lógica de ordenamiento combinada
+  // Lógica de ordenamiento combinada con prioridad para Early Adopters
   const sortedCoupons = useMemo(() => {
     let arr = [...coupons]
+    
+    // Primero aplicar el ordenamiento específico
     switch (sortOption) {
       case "recent":
         arr.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
@@ -621,6 +647,21 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
       default:
         break
     }
+    
+    // Luego aplicar prioridad para Early Adopters
+    arr.sort((a, b) => {
+      const aIsEarlyAdopter = a.store?.is_early_adopter || false
+      const bIsEarlyAdopter = b.store?.is_early_adopter || false
+      
+      // Si ambos son Early Adopters o ambos no lo son, mantener el orden original
+      if (aIsEarlyAdopter === bIsEarlyAdopter) {
+        return 0
+      }
+      
+      // Si solo uno es Early Adopter, ponerlo primero
+      return aIsEarlyAdopter ? -1 : 1
+    })
+    
     return arr
   }, [coupons, sortOption])
 
@@ -1277,6 +1318,21 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
             {/* Offers List */}
             <div className="lg:w-3/4">
               <div ref={mainListRef} />
+              
+              {/* Mensaje informativo sobre Early Adopters */}
+              {sortedCoupons.some((coupon: any) => coupon.store?.is_early_adopter) && (
+                <div className="mb-4 p-3 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <svg className="h-5 w-5 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <p className="text-sm text-amber-800 font-medium">
+                      💎 <strong>Early Adopters</strong> aparecen primero - Las tiendas pioneras que confiaron en nosotros tienen prioridad en los resultados
+                    </p>
+                  </div>
+                </div>
+              )}
+              
               <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-2">
                 <h2 className="text-2xl font-bold">Ofertas</h2>
                 <div className="flex items-center gap-4">
@@ -1365,6 +1421,19 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
                 </TabsContent>
 
                 <TabsContent value="popular">
+                  {/* Mensaje informativo sobre Early Adopters para populares */}
+                  {popularCoupons.some((coupon: any) => coupon.store?.is_early_adopter) && (
+                    <div className="mb-4 p-3 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <svg className="h-5 w-5 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        <p className="text-sm text-amber-800 font-medium">
+                          💎 <strong>Early Adopters</strong> aparecen primero en los cupones populares
+                        </p>
+                      </div>
+                    </div>
+                  )}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {popularCoupons.length > 0 ? (
                       popularCoupons.map((coupon: any) => <CouponCard key={coupon.id} coupon={coupon} />)
@@ -1377,6 +1446,19 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
                 </TabsContent>
 
                 <TabsContent value="new">
+                  {/* Mensaje informativo sobre Early Adopters para nuevos */}
+                  {newCoupons.some((coupon: any) => coupon.store?.is_early_adopter) && (
+                    <div className="mb-4 p-3 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <svg className="h-5 w-5 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        <p className="text-sm text-amber-800 font-medium">
+                          💎 <strong>Early Adopters</strong> aparecen primero en los cupones nuevos
+                        </p>
+                      </div>
+                    </div>
+                  )}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {newCoupons && newCoupons.length > 0 ? (
                       newCoupons.map((coupon: any) => <CouponCard key={coupon.id} coupon={coupon} />)

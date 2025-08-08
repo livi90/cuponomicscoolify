@@ -114,7 +114,7 @@ export const ECOMMERCE_PLATFORMS: EcommercePlatform[] = [
 
 export class TrackingScriptGenerator {
   static generateScript(storeId: string, pixelId: string, platform: string): string {
-    const apiUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') || "https://cuponomics.com";
+    const apiUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') || "https://cuponomics.app";
     if (platform === "shopify") {
       // Usar el nuevo método de Shopify Web Pixels
       return `

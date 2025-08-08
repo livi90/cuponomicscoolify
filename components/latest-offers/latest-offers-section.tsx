@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Clock, Tag, Store, Star, ArrowRight } from "lucide-react"
+import { EarlyAdopterBadge } from "@/components/ui/early-adopter-badge"
 import Link from "next/link"
 import Image from "next/image"
 
@@ -19,6 +20,7 @@ interface LatestOffer {
   store: {
     name: string
     logo_url: string
+    is_early_adopter?: boolean
   }
   ratings: Array<{
     rating: number
@@ -46,7 +48,8 @@ export function LatestOffersSection() {
             created_at,
             store:stores(
               name,
-              logo_url
+              logo_url,
+              is_early_adopter
             ),
             ratings(
               rating,
@@ -55,10 +58,23 @@ export function LatestOffersSection() {
           `)
           .eq("is_active", true)
           .order("created_at", { ascending: false })
-          .limit(6)
+          .limit(12)
+
+        // Ordenar por Early Adopters primero, luego por fecha
+        const sortedOffers = (offers || []).sort((a, b) => {
+          const aStore = Array.isArray(a.store) ? a.store[0] : a.store
+          const bStore = Array.isArray(b.store) ? b.store[0] : b.store
+          const aIsEarlyAdopter = aStore?.is_early_adopter || false
+          const bIsEarlyAdopter = bStore?.is_early_adopter || false
+          
+          if (aIsEarlyAdopter === bIsEarlyAdopter) {
+            return 0
+          }
+          return aIsEarlyAdopter ? -1 : 1
+        }).slice(0, 6)
 
         // Transformar los datos para que coincidan con la interfaz
-        const transformedOffers = (offers || []).map(offer => ({
+        const transformedOffers = sortedOffers.map(offer => ({
           ...offer,
           store: Array.isArray(offer.store) ? offer.store[0] || { name: 'Tienda', logo_url: '' } : offer.store,
           ratings: Array.isArray(offer.ratings) ? offer.ratings : []
@@ -191,14 +207,19 @@ export function LatestOffersSection() {
                   </p>
                 )}
 
-                <div className="flex items-center justify-between mb-4">
-                  <Badge className="bg-green-100 text-green-700 border-green-200">
-                    ${offer.discount_value} OFF
-                  </Badge>
-                  <Badge variant="outline" className="text-xs">
-                    {offer.coupon_type === 'code' ? 'Código' : 'Oferta'}
-                  </Badge>
-                </div>
+                                 <div className="flex items-center justify-between mb-4">
+                   <div className="flex items-center gap-2">
+                     <Badge className="bg-green-100 text-green-700 border-green-200">
+                       ${offer.discount_value} OFF
+                     </Badge>
+                     {offer.store.is_early_adopter && (
+                       <EarlyAdopterBadge size="sm" />
+                     )}
+                   </div>
+                   <Badge variant="outline" className="text-xs">
+                     {offer.coupon_type === 'code' ? 'Código' : 'Oferta'}
+                   </Badge>
+                 </div>
 
                 <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-1">

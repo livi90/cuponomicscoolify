@@ -199,8 +199,9 @@ export async function PATCH(request: Request) {
         user_id: application.user_id,
         title: "¡Tienda Aprobada!",
         message: `Tu tienda "${application.store_name}" ha sido aprobada y está lista para usar.`,
-        type: "store_approved",
+        notification_type: "store_approved",
         is_read: false,
+        metadata: { store_id: store.id, store_name: application.store_name }
       })
 
       return NextResponse.json({ message: "Application approved and store created", store })
@@ -210,8 +211,9 @@ export async function PATCH(request: Request) {
         user_id: application.user_id,
         title: "Solicitud de Tienda Rechazada",
         message: `Tu solicitud para la tienda "${application.store_name}" ha sido rechazada. ${adminNotes ? `Motivo: ${adminNotes}` : ""}`,
-        type: "store_rejected",
+        notification_type: "store_rejected",
         is_read: false,
+        metadata: { store_name: application.store_name, admin_notes: adminNotes }
       })
     }
 

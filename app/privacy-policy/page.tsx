@@ -23,7 +23,7 @@ export default function PrivacyPolicyPage() {
           <div className="bg-gray-50 p-4 rounded-lg">
             <p className="text-sm"><strong>Responsable del tratamiento:</strong></p>
             <p className="text-sm">• Nombre: Cuponomics</p>
-            <p className="text-sm">• Email: cuponomicsuppor@gmail.com</p>
+            <p className="text-sm">• Email: hello@cuponomics.app</p>
           </div>
         </section>
 
@@ -182,7 +182,7 @@ export default function PrivacyPolicyPage() {
           <h2 className="text-2xl font-semibold mb-4">12. Contacto</h2>
           <p className="mb-4">Para ejercer tus derechos o realizar consultas sobre esta política:</p>
           <div className="bg-gray-50 p-4 rounded-lg">
-            <p className="text-sm"><strong>Email:</strong> cuponomicsuppor@gmail.com</p>
+            <p className="text-sm"><strong>Email:</strong> hello@cuponomics.app</p>
             <p className="text-sm"><strong>Asunto:</strong> Política de Privacidad</p>
           </div>
         </section>

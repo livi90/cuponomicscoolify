@@ -1,3 +1,6 @@
+"use client"
+
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -5,14 +8,264 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
-import { Star, ThumbsUp, ThumbsDown, MessageSquare, Tag } from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { 
+  Star, 
+  ThumbsUp, 
+  ThumbsDown, 
+  MessageSquare, 
+  Tag, 
+  Upload,
+  CheckCircle,
+  AlertTriangle,
+  Heart,
+  User,
+  Award,
+  TrendingUp
+} from "lucide-react"
+import { toast } from "react-hot-toast"
+import { createClient } from "@/lib/supabase/client"
 
-export const metadata = {
-  title: "Calificar Cupones | Cuponomics",
-  description: "Califica y comparte tu experiencia con cupones y ofertas en la comunidad de Cuponomics.",
+interface Review {
+  id: string
+  rating: number
+  worked: boolean
+  worked_partially: boolean
+  title: string
+  review_text: string
+  pros: string
+  cons: string
+  purchase_amount: number
+  savings_amount: number
+  screenshot_url: string
+  created_at: string
+  is_helpful_count: number
+  is_not_helpful_count: number
+  user_profiles: {
+    display_name: string
+    username: string
+    avatar_url: string
+    reputation_points: number
+    level: number
+  }
+  coupons: {
+    code: string
+    description: string
+    discount_type: string
+    discount_value: number
+  }
+  stores: {
+    name: string
+    logo_url: string
+  }
+}
+
+interface Coupon {
+  id: string
+  code: string
+  description: string
+  discount_type: string
+  discount_value: number
+  stores: {
+    id: string
+    name: string
+    logo_url: string
+  } | null
 }
 
 export default function CalificarCupones() {
+  const [reviews, setReviews] = useState<Review[]>([])
+  const [coupons, setCoupons] = useState<Coupon[]>([])
+  const [loading, setLoading] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [activeTab, setActiveTab] = useState("all")
+  const [page, setPage] = useState(1)
+  const [hasMore, setHasMore] = useState(true)
+  
+  // Formulario de calificación
+  const [formData, setFormData] = useState({
+    coupon_id: "",
+    store_id: "",
+    rating: 0,
+    worked: null as boolean | null,
+    worked_partially: false,
+    title: "",
+    review_text: "",
+    pros: "",
+    cons: "",
+    purchase_amount: "",
+    savings_amount: "",
+    screenshot_url: ""
+  })
+
+  const supabase = createClient()
+
+  // Cargar reviews
+  const loadReviews = async (pageNum = 1, filter = "all") => {
+    try {
+      setLoading(true)
+      
+      let url = `/api/reviews?page=${pageNum}&limit=10&sort=created_at&order=desc`
+      
+      if (filter === "positive") {
+        url += "&worked=true"
+      } else if (filter === "negative") {
+        url += "&worked=false"
+      }
+      
+      const response = await fetch(url)
+      const data = await response.json()
+      
+      if (pageNum === 1) {
+        setReviews(data.reviews || [])
+      } else {
+        setReviews(prev => [...prev, ...(data.reviews || [])])
+      }
+      
+      // Manejar paginación de forma segura
+      if (data.pagination) {
+        setHasMore(data.pagination.page < data.pagination.totalPages)
+      } else {
+        setHasMore(false)
+      }
+      setPage(pageNum)
+      
+    } catch (error) {
+      console.error("Error loading reviews:", error)
+      toast.error("Error al cargar reviews")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Cargar cupones disponibles
+  const loadCoupons = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("coupons")
+        .select(`
+          id,
+          code,
+          description,
+          discount_type,
+          discount_value,
+          stores(
+            id,
+            name,
+            logo_url
+          )
+        `)
+        .eq("is_active", true)
+        .order("created_at", { ascending: false })
+        .limit(50)
+      
+      if (error) throw error
+      setCoupons(data?.map(coupon => ({
+        ...coupon,
+        stores: coupon.stores?.[0] || null // Manejar caso donde no hay tienda
+      })) || [])
+    } catch (error) {
+      console.error("Error loading coupons:", error)
+    }
+  }
+
+  // Manejar voto
+  const handleVote = async (reviewId: string, voteType: "like" | "dislike") => {
+    try {
+      const response = await fetch(`/api/reviews/${reviewId}/votes`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ vote_type: voteType })
+      })
+      
+      if (response.ok) {
+        // Recargar reviews para actualizar contadores
+        loadReviews(1, activeTab)
+        toast.success("Voto registrado")
+      } else {
+        const error = await response.json()
+        toast.error(error.error || "Error al votar")
+      }
+    } catch (error) {
+      console.error("Error voting:", error)
+      toast.error("Error al votar")
+    }
+  }
+
+  // Enviar calificación
+  const handleSubmitReview = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!formData.coupon_id || !formData.rating || formData.worked === null) {
+      toast.error("Por favor completa todos los campos requeridos")
+      return
+    }
+    
+    try {
+      setSubmitting(true)
+      
+      const response = await fetch("/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...formData,
+          purchase_amount: formData.purchase_amount ? parseFloat(formData.purchase_amount) : null,
+          savings_amount: formData.savings_amount ? parseFloat(formData.savings_amount) : null
+        })
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        toast.success("¡Review enviada exitosamente!")
+        
+        // Limpiar formulario
+        setFormData({
+          coupon_id: "",
+          store_id: "",
+          rating: 0,
+          worked: null,
+          worked_partially: false,
+          title: "",
+          review_text: "",
+          pros: "",
+          cons: "",
+          purchase_amount: "",
+          savings_amount: "",
+          screenshot_url: ""
+        })
+        
+        // Recargar reviews
+        loadReviews(1, activeTab)
+      } else {
+        const error = await response.json()
+        toast.error(error.error || "Error al enviar review")
+      }
+    } catch (error) {
+      console.error("Error submitting review:", error)
+      toast.error("Error al enviar review")
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  // Manejar cambio de cupón
+  const handleCouponChange = (couponId: string) => {
+    const coupon = coupons.find(c => c.id === couponId)
+    if (coupon) {
+      setFormData(prev => ({
+        ...prev,
+        coupon_id: couponId,
+        store_id: coupon.stores?.id || ""
+      }))
+    }
+  }
+
+  // Cargar datos iniciales
+  useEffect(() => {
+    loadReviews(1, activeTab)
+    loadCoupons()
+  }, [activeTab])
+
   return (
     <div className="min-h-screen flex flex-col">
       <main className="flex-1">
@@ -27,7 +280,10 @@ export default function CalificarCupones() {
                 Tu experiencia es valiosa. Comparte tus opiniones sobre cupones y ofertas para ayudar a otros usuarios.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button className="bg-orange-500 hover:bg-orange-600 text-white rounded-full px-8 py-6">
+                <Button 
+                  className="bg-orange-500 hover:bg-orange-600 text-white rounded-full px-8 py-6"
+                  onClick={() => document.getElementById("review-form")?.scrollIntoView({ behavior: "smooth" })}
+                >
                   Calificar un cupón
                 </Button>
                 <Button variant="outline" className="rounded-full px-8 py-6">
@@ -45,24 +301,30 @@ export default function CalificarCupones() {
             <div className="lg:w-2/3">
               <h2 className="text-2xl font-bold mb-6">Califica un cupón o oferta</h2>
 
-              <Card className="mb-8">
+              <Card className="mb-8" id="review-form">
                 <CardHeader>
                   <CardTitle>Formulario de calificación</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <form className="space-y-6">
-                    <div>
-                      <label htmlFor="store" className="block text-sm font-medium text-gray-700 mb-1">
-                        Tienda
-                      </label>
-                      <Input id="store" placeholder="Nombre de la tienda" />
-                    </div>
-
+                  <form onSubmit={handleSubmitReview} className="space-y-6">
                     <div>
                       <label htmlFor="coupon" className="block text-sm font-medium text-gray-700 mb-1">
-                        Código o descripción de la oferta
+                        Seleccionar cupón
                       </label>
-                      <Input id="coupon" placeholder="Ej: DESCUENTO20 o '50% en productos seleccionados'" />
+                      <select
+                        id="coupon"
+                        value={formData.coupon_id}
+                        onChange={(e) => handleCouponChange(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        required
+                      >
+                        <option value="">Selecciona un cupón...</option>
+                        {coupons.map((coupon) => (
+                          <option key={coupon.id} value={coupon.id}>
+                            {coupon.code} - {coupon.stores?.name || "Tienda"} ({coupon.discount_value}% {coupon.discount_type})
+                          </option>
+                        ))}
+                      </select>
                     </div>
 
                     <div>
@@ -73,7 +335,11 @@ export default function CalificarCupones() {
                             type="radio"
                             id="worked-yes"
                             name="worked"
+                            value="true"
+                            checked={formData.worked === true}
+                            onChange={(e) => setFormData(prev => ({ ...prev, worked: e.target.value === "true" }))}
                             className="h-4 w-4 text-orange-500 focus:ring-orange-500"
+                            required
                           />
                           <label htmlFor="worked-yes" className="ml-2 text-sm text-gray-600">
                             Sí
@@ -84,7 +350,11 @@ export default function CalificarCupones() {
                             type="radio"
                             id="worked-no"
                             name="worked"
+                            value="false"
+                            checked={formData.worked === false}
+                            onChange={(e) => setFormData(prev => ({ ...prev, worked: e.target.value === "true" }))}
                             className="h-4 w-4 text-orange-500 focus:ring-orange-500"
+                            required
                           />
                           <label htmlFor="worked-no" className="ml-2 text-sm text-gray-600">
                             No
@@ -92,9 +362,10 @@ export default function CalificarCupones() {
                         </div>
                         <div className="flex items-center">
                           <input
-                            type="radio"
+                            type="checkbox"
                             id="worked-partially"
-                            name="worked"
+                            checked={formData.worked_partially}
+                            onChange={(e) => setFormData(prev => ({ ...prev, worked_partially: e.target.checked }))}
                             className="h-4 w-4 text-orange-500 focus:ring-orange-500"
                           />
                           <label htmlFor="worked-partially" className="ml-2 text-sm text-gray-600">
@@ -111,7 +382,10 @@ export default function CalificarCupones() {
                           <button
                             key={rating}
                             type="button"
-                            className="text-gray-300 hover:text-orange-500 focus:outline-none"
+                            onClick={() => setFormData(prev => ({ ...prev, rating }))}
+                            className={`text-gray-300 hover:text-orange-500 focus:outline-none ${
+                              formData.rating >= rating ? "text-orange-500" : ""
+                            }`}
                           >
                             <Star className="h-8 w-8" />
                           </button>
@@ -120,183 +394,241 @@ export default function CalificarCupones() {
                     </div>
 
                     <div>
+                      <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
+                        Título de tu review
+                      </label>
+                      <Input
+                        id="title"
+                        value={formData.title}
+                        onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                        placeholder="Resumen de tu experiencia..."
+                      />
+                    </div>
+
+                    <div>
                       <label htmlFor="review" className="block text-sm font-medium text-gray-700 mb-1">
                         Tu experiencia
                       </label>
                       <Textarea
                         id="review"
+                        value={formData.review_text}
+                        onChange={(e) => setFormData(prev => ({ ...prev, review_text: e.target.value }))}
                         placeholder="Comparte los detalles de tu experiencia con este cupón o oferta..."
                         rows={4}
+                        required
                       />
                     </div>
 
-                    <div>
-                      <label htmlFor="screenshot" className="block text-sm font-medium text-gray-700 mb-1">
-                        Captura de pantalla (opcional)
-                      </label>
-                      <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                        <div className="space-y-1 text-center">
-                          <svg
-                            className="mx-auto h-12 w-12 text-gray-400"
-                            stroke="currentColor"
-                            fill="none"
-                            viewBox="0 0 48 48"
-                            aria-hidden="true"
-                          >
-                            <path
-                              d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                              strokeWidth={2}
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                          </svg>
-                          <div className="flex text-sm text-gray-600">
-                            <label
-                              htmlFor="file-upload"
-                              className="relative cursor-pointer bg-white rounded-md font-medium text-orange-500 hover:text-orange-600"
-                            >
-                              <span>Sube un archivo</span>
-                              <input id="file-upload" name="file-upload" type="file" className="sr-only" />
-                            </label>
-                            <p className="pl-1">o arrastra y suelta</p>
-                          </div>
-                          <p className="text-xs text-gray-500">PNG, JPG, GIF hasta 10MB</p>
-                        </div>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <label htmlFor="pros" className="block text-sm font-medium text-gray-700 mb-1">
+                          Pros
+                        </label>
+                        <Textarea
+                          id="pros"
+                          value={formData.pros}
+                          onChange={(e) => setFormData(prev => ({ ...prev, pros: e.target.value }))}
+                          placeholder="¿Qué te gustó?"
+                          rows={3}
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="cons" className="block text-sm font-medium text-gray-700 mb-1">
+                          Contras
+                        </label>
+                        <Textarea
+                          id="cons"
+                          value={formData.cons}
+                          onChange={(e) => setFormData(prev => ({ ...prev, cons: e.target.value }))}
+                          placeholder="¿Qué no te gustó?"
+                          rows={3}
+                        />
                       </div>
                     </div>
 
-                    <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white">Enviar calificación</Button>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <label htmlFor="purchase_amount" className="block text-sm font-medium text-gray-700 mb-1">
+                          Monto de la compra (€)
+                        </label>
+                        <Input
+                          id="purchase_amount"
+                          type="number"
+                          step="0.01"
+                          value={formData.purchase_amount}
+                          onChange={(e) => setFormData(prev => ({ ...prev, purchase_amount: e.target.value }))}
+                          placeholder="0.00"
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="savings_amount" className="block text-sm font-medium text-gray-700 mb-1">
+                          Ahorro obtenido (€)
+                        </label>
+                        <Input
+                          id="savings_amount"
+                          type="number"
+                          step="0.01"
+                          value={formData.savings_amount}
+                          onChange={(e) => setFormData(prev => ({ ...prev, savings_amount: e.target.value }))}
+                          placeholder="0.00"
+                        />
+                      </div>
+                    </div>
+
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+                      disabled={submitting}
+                    >
+                      {submitting ? "Enviando..." : "Enviar calificación"}
+                    </Button>
                   </form>
                 </CardContent>
               </Card>
 
               <h2 className="text-2xl font-bold mb-6">Últimas calificaciones de la comunidad</h2>
 
-              <Tabs defaultValue="all" className="mb-8">
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
                 <TabsList className="mb-6">
                   <TabsTrigger value="all">Todas</TabsTrigger>
                   <TabsTrigger value="positive">Positivas</TabsTrigger>
                   <TabsTrigger value="negative">Negativas</TabsTrigger>
                 </TabsList>
-                <TabsContent value="all">
+                <TabsContent value={activeTab}>
                   <div className="space-y-6">
-                    {[
-                      {
-                        user: "María G.",
-                        store: "Amazon",
-                        coupon: "TECH20",
-                        rating: 5,
-                        worked: true,
-                        comment: "¡Excelente! El cupón funcionó perfectamente y me ahorré un 20% en mi nueva tablet.",
-                        date: "Hace 2 horas",
-                        likes: 12,
-                        dislikes: 0,
-                        replies: 3,
-                      },
-                      {
-                        user: "Carlos R.",
-                        store: "Zara",
-                        coupon: "Rebajas de verano",
-                        rating: 4,
-                        worked: true,
-                        comment: "Buenos descuentos, aunque algunas tallas ya estaban agotadas.",
-                        date: "Hace 5 horas",
-                        likes: 8,
-                        dislikes: 1,
-                        replies: 2,
-                      },
-                      {
-                        user: "Laura M.",
-                        store: "MediaMarkt",
-                        coupon: "TV100",
-                        rating: 2,
-                        worked: false,
-                        comment:
-                          "El cupón no funcionó para el modelo que yo quería. Solo válido para algunos televisores específicos.",
-                        date: "Hace 1 día",
-                        likes: 15,
-                        dislikes: 2,
-                        replies: 5,
-                      },
-                    ].map((review, index) => (
-                      <Card key={index}>
-                        <CardHeader className="pb-3">
-                          <div className="flex justify-between items-center">
-                            <div className="flex items-center gap-2">
-                              <div className="bg-gray-100 rounded-full h-10 w-10 flex items-center justify-center text-gray-600 font-medium">
-                                {review.user.charAt(0)}
+                    {reviews.length === 0 && !loading ? (
+                      <Alert>
+                        <AlertTriangle className="h-4 w-4" />
+                        <AlertDescription>
+                          No hay reviews aún. ¡Sé el primero en calificar un cupón!
+                        </AlertDescription>
+                      </Alert>
+                    ) : (
+                      reviews.map((review) => (
+                        <Card key={review.id}>
+                          <CardHeader className="pb-3">
+                            <div className="flex justify-between items-center">
+                              <div className="flex items-center gap-2">
+                                <div className="bg-gray-100 rounded-full h-10 w-10 flex items-center justify-center text-gray-600 font-medium">
+                                  {review.user_profiles?.display_name?.charAt(0) || "U"}
+                                </div>
+                                <div>
+                                  <div className="font-medium">{review.user_profiles?.display_name || "Usuario"}</div>
+                                  <div className="text-sm text-gray-500">
+                                    {new Date(review.created_at).toLocaleDateString()}
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <Award className="h-4 w-4 text-yellow-500" />
+                                  <span className="text-sm text-gray-600">Nivel {review.user_profiles?.level || 1}</span>
+                                </div>
                               </div>
-                              <div>
-                                <div className="font-medium">{review.user}</div>
-                                <div className="text-sm text-gray-500">{review.date}</div>
+                              <div className="flex items-center">
+                                {[...Array(5)].map((_, i) => (
+                                  <Star
+                                    key={i}
+                                    className={`h-4 w-4 ${
+                                      i < review.rating ? "text-orange-500 fill-orange-500" : "text-gray-300"
+                                    }`}
+                                  />
+                                ))}
                               </div>
                             </div>
-                            <div className="flex items-center">
-                              {[...Array(5)].map((_, i) => (
-                                <Star
-                                  key={i}
-                                  className={`h-4 w-4 ${
-                                    i < review.rating ? "text-orange-500 fill-orange-500" : "text-gray-300"
-                                  }`}
-                                />
-                              ))}
+                          </CardHeader>
+                          <CardContent>
+                            <div className="flex items-center gap-2 mb-3">
+                              <Badge variant="outline" className="bg-gray-50">
+                                {review.stores?.name || "Tienda"}
+                              </Badge>
+                              <Badge
+                                variant="outline"
+                                className={`${
+                                  review.worked
+                                    ? "bg-green-50 text-green-600 border-green-200"
+                                    : "bg-red-50 text-red-600 border-red-200"
+                                }`}
+                              >
+                                {review.worked ? "Funcionó" : "No funcionó"}
+                              </Badge>
+                              {review.coupons?.code && (
+                                <div className="flex items-center gap-1">
+                                  <Tag className="h-3 w-3 text-gray-400" />
+                                  <span className="text-sm text-gray-600">{review.coupons.code}</span>
+                                </div>
+                              )}
                             </div>
-                          </div>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="flex items-center gap-2 mb-3">
-                            <Badge variant="outline" className="bg-gray-50">
-                              {review.store}
-                            </Badge>
-                            <Badge
-                              variant="outline"
-                              className={`${
-                                review.worked
-                                  ? "bg-green-50 text-green-600 border-green-200"
-                                  : "bg-red-50 text-red-600 border-red-200"
-                              }`}
-                            >
-                              {review.worked ? "Funcionó" : "No funcionó"}
-                            </Badge>
-                            {review.coupon && (
-                              <div className="flex items-center gap-1">
-                                <Tag className="h-3 w-3 text-gray-400" />
-                                <span className="text-sm text-gray-600">{review.coupon}</span>
+                            {review.title && (
+                              <h4 className="font-semibold mb-2">{review.title}</h4>
+                            )}
+                            <p className="text-gray-700 mb-3">{review.review_text}</p>
+                            
+                            {(review.pros || review.cons) && (
+                              <div className="grid md:grid-cols-2 gap-4 mb-3">
+                                {review.pros && (
+                                  <div className="bg-green-50 p-3 rounded-lg">
+                                    <h5 className="font-medium text-green-800 mb-1">Pros</h5>
+                                    <p className="text-sm text-green-700">{review.pros}</p>
+                                  </div>
+                                )}
+                                {review.cons && (
+                                  <div className="bg-red-50 p-3 rounded-lg">
+                                    <h5 className="font-medium text-red-800 mb-1">Contras</h5>
+                                    <p className="text-sm text-red-700">{review.cons}</p>
+                                  </div>
+                                )}
                               </div>
                             )}
-                          </div>
-                          <p className="text-gray-700">{review.comment}</p>
-                        </CardContent>
-                        <CardFooter className="border-t pt-3 flex justify-between">
-                          <div className="flex items-center gap-4">
-                            <button className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700">
-                              <ThumbsUp className="h-4 w-4" />
-                              <span>{review.likes}</span>
-                            </button>
-                            <button className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700">
-                              <ThumbsDown className="h-4 w-4" />
-                              <span>{review.dislikes}</span>
-                            </button>
-                            <button className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700">
-                              <MessageSquare className="h-4 w-4" />
-                              <span>{review.replies} respuestas</span>
-                            </button>
-                          </div>
-                          <Button variant="ghost" size="sm" className="text-orange-500 hover:text-orange-600">
-                            Responder
-                          </Button>
-                        </CardFooter>
-                      </Card>
-                    ))}
+                            
+                            {(review.purchase_amount || review.savings_amount) && (
+                              <div className="flex gap-4 text-sm text-gray-600 mb-3">
+                                {review.purchase_amount && (
+                                  <span>Compra: €{review.purchase_amount}</span>
+                                )}
+                                {review.savings_amount && (
+                                  <span className="text-green-600">Ahorro: €{review.savings_amount}</span>
+                                )}
+                              </div>
+                            )}
+                          </CardContent>
+                          <CardFooter className="border-t pt-3 flex justify-between">
+                            <div className="flex items-center gap-4">
+                              <button 
+                                className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700"
+                                onClick={() => handleVote(review.id, "like")}
+                              >
+                                <ThumbsUp className="h-4 w-4" />
+                                <span>{review.is_helpful_count}</span>
+                              </button>
+                              <button 
+                                className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700"
+                                onClick={() => handleVote(review.id, "dislike")}
+                              >
+                                <ThumbsDown className="h-4 w-4" />
+                                <span>{review.is_not_helpful_count}</span>
+                              </button>
+                            </div>
+                            <Button variant="ghost" size="sm" className="text-orange-500 hover:text-orange-600">
+                              Responder
+                            </Button>
+                          </CardFooter>
+                        </Card>
+                      ))
+                    )}
                   </div>
                 </TabsContent>
-                <TabsContent value="positive">{/* Contenido similar para calificaciones positivas */}</TabsContent>
-                <TabsContent value="negative">{/* Contenido similar para calificaciones negativas */}</TabsContent>
               </Tabs>
 
-              <div className="flex justify-center mt-8">
-                <Button variant="outline">Cargar más calificaciones</Button>
-              </div>
+              {hasMore && (
+                <div className="flex justify-center mt-8">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => loadReviews(page + 1, activeTab)}
+                    disabled={loading}
+                  >
+                    {loading ? "Cargando..." : "Cargar más calificaciones"}
+                  </Button>
+                </div>
+              )}
             </div>
 
             {/* Right Column */}
@@ -355,33 +687,25 @@ export default function CalificarCupones() {
                   <ul className="space-y-2">
                     <li className="flex items-center gap-2">
                       <div className="bg-green-100 rounded-full p-1">
-                        <svg className="h-4 w-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
+                        <CheckCircle className="h-4 w-4 text-green-500" />
                       </div>
                       <span className="text-sm">Ayudas a otros usuarios</span>
                     </li>
                     <li className="flex items-center gap-2">
                       <div className="bg-green-100 rounded-full p-1">
-                        <svg className="h-4 w-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
+                        <TrendingUp className="h-4 w-4 text-green-500" />
                       </div>
                       <span className="text-sm">Ganas puntos de reputación</span>
                     </li>
                     <li className="flex items-center gap-2">
                       <div className="bg-green-100 rounded-full p-1">
-                        <svg className="h-4 w-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
+                        <Award className="h-4 w-4 text-green-500" />
                       </div>
                       <span className="text-sm">Desbloqueas recompensas exclusivas</span>
                     </li>
                     <li className="flex items-center gap-2">
                       <div className="bg-green-100 rounded-full p-1">
-                        <svg className="h-4 w-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
+                        <Heart className="h-4 w-4 text-green-500" />
                       </div>
                       <span className="text-sm">Contribuyes a una comunidad más transparente</span>
                     </li>
@@ -392,101 +716,6 @@ export default function CalificarCupones() {
           </div>
         </section>
       </main>
-
-      <footer className="bg-gray-800 text-white py-12">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <h3 className="text-lg font-bold mb-4">
-                <img src="/images/Cuponomics-logo.png" alt="Cuponomics Logo" style={{ height: 32, width: "auto" }} />
-              </h3>
-            </div>
-            <div>
-              <h3 className="text-lg font-bold mb-4">Enlaces rápidos</h3>
-              <ul className="space-y-2">
-                <li>
-                  <Link href="/" className="text-gray-300 hover:text-white">
-                    Inicio
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/buscar-ofertas" className="text-gray-300 hover:text-white">
-                    Buscar Ofertas
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/calificar-cupones" className="text-gray-300 hover:text-white">
-                    Calificar Cupones
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/para-comerciantes" className="text-gray-300 hover:text-white">
-                    Para Comerciantes
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-lg font-bold mb-4">Categorías</h3>
-              <ul className="space-y-2">
-                <li>
-                  <Link href="#" className="text-gray-300 hover:text-white">
-                    Moda
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="text-gray-300 hover:text-white">
-                    Electrónica
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="text-gray-300 hover:text-white">
-                    Hogar
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="text-gray-300 hover:text-white">
-                    Viajes
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="text-gray-300 hover:text-white">
-                    Alimentación
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-lg font-bold mb-4">Legal</h3>
-              <ul className="space-y-2">
-                <li>
-                  <Link href="#" className="text-gray-300 hover:text-white">
-                    Términos y condiciones
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="text-gray-300 hover:text-white">
-                    Política de privacidad
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="text-gray-300 hover:text-white">
-                    Política de cookies
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="text-gray-300 hover:text-white">
-                    Contacto
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-300">
-            <p>&copy; {new Date().getFullYear()} <img src="/images/Cuponomics-logo.png" alt="Cuponomics Logo" style={{ display: "inline", height: 24, width: "auto", verticalAlign: "middle" }} />. Todos los derechos reservados.</p>
-          </div>
-        </div>
-      </footer>
     </div>
   )
 }

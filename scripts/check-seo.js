@@ -8,7 +8,7 @@
 const fs = require('fs')
 const path = require('path')
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://cuponomics.com'
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://cuponomics.app'
 
 async function checkSEO() {
   console.log('🔍 Verificando configuración SEO de Cuponomics...\n')

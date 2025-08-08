@@ -133,7 +133,7 @@ export function TrackingPixelsManager({ userId, userRole }: TrackingPixelsManage
   }
 
   const generateTrackingCode = (pixel: TrackingPixel) => {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "https://cuponomics.com"
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "https://cuponomics.app"
     return `<!-- Cuponomics Tracking Pixel -->
 <script>
 (function() {

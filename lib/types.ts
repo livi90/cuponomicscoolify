@@ -25,6 +25,7 @@ export interface Store {
   contact_phone: string | null
   address: string | null
   is_active: boolean
+  is_early_adopter: boolean
   created_at: string
   updated_at: string
 }

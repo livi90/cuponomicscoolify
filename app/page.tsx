@@ -27,6 +27,8 @@ import Script from "next/script"
 import { RealTimeStats } from "@/components/stats/real-time-stats"
 import { LatestOffersSection } from "@/components/latest-offers/latest-offers-section"
 import { SpecialEventBanner } from "@/components/banners/special-event-banner"
+import { EarlyAdoptersSection } from "@/components/early-adopters/early-adopters-section"
+import ReviewsFeed from "@/components/social/reviews-feed"
 
 function getLocale() {
   if (typeof window !== "undefined" && window.navigator) {
@@ -403,6 +405,16 @@ export default function HomePage() {
         <section className="py-20 bg-white">
           <div className="container mx-auto px-4">
             <LatestOffersSection />
+          </div>
+        </section>
+
+        {/* Early Adopters Section */}
+        <EarlyAdoptersSection />
+
+        {/* Reviews de la Comunidad */}
+        <section className="py-20 bg-gradient-to-br from-orange-50 to-yellow-50">
+          <div className="container mx-auto px-4">
+            <ReviewsFeed limit={3} showHeader={true} filter="positive" />
           </div>
         </section>
 

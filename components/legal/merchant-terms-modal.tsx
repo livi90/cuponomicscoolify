@@ -50,7 +50,7 @@ export function MerchantTermsModal({ children, variant = "link" }: MerchantTerms
               <div className="bg-gray-50 p-3 rounded-lg">
                 <p className="text-sm"><strong>Datos del titular:</strong></p>
                 <p className="text-sm">• Nombre: Cuponomics</p>
-                <p className="text-sm">• Email de contacto: cuponomicsuppor@gmail.com</p>
+                <p className="text-sm">• Email de contacto: hello@cuponomics.app</p>
               </div>
             </section>
 
@@ -402,12 +402,12 @@ export function MerchantTermsModal({ children, variant = "link" }: MerchantTerms
               <div className="space-y-3">
                 <div>
                   <h4 className="font-medium text-sm mb-1">15.1 Merchant Support</h4>
-                  <p className="text-gray-700 text-xs">Email: cuponomicsuppor@gmail.com</p>
+                  <p className="text-gray-700 text-xs">Email: hello@cuponomics.app</p>
                   <p className="text-gray-700 text-xs">Para consultas generales y soporte técnico</p>
                 </div>
                 <div>
                   <h4 className="font-medium text-sm mb-1">15.2 Departamento Financiero</h4>
-                  <p className="text-gray-700 text-xs">Email: cuponomicsuppor@gmail.com</p>
+                  <p className="text-gray-700 text-xs">Email: hello@cuponomics.app</p>
                   <p className="text-gray-700 text-xs">Para consultas sobre comisiones y pagos</p>
                 </div>
               </div>

@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { RecommendedBadge } from "@/components/ui/recommended-badge"
 import {
   LayoutDashboard,
   Store,
@@ -17,6 +18,8 @@ import {
   Target,
   Megaphone,
   ShoppingBag,
+  Zap,
+  Shield,
 } from "lucide-react"
 
 interface DashboardNavProps {
@@ -50,6 +53,12 @@ export function DashboardNav({ userRole }: DashboardNavProps) {
       href: "/dashboard/products",
       icon: Package,
       roles: ["merchant", "admin"],
+    },
+    {
+      title: "Tracking Universal",
+      href: "/dashboard/tracking-universal",
+      icon: Zap,
+      roles: ["merchant"],
     },
     {
       title: "Tracking Webhooks",
@@ -88,6 +97,24 @@ export function DashboardNav({ userRole }: DashboardNavProps) {
       roles: ["admin"],
     },
     {
+      title: "Todas las Tiendas",
+      href: "/dashboard/admin/all-stores",
+      icon: Store,
+      roles: ["admin"],
+    },
+    {
+      title: "Tracking Universal",
+      href: "/dashboard/admin/tracking-universal",
+      icon: Zap,
+      roles: ["admin"],
+    },
+    {
+      title: "Detección de Scripts",
+      href: "/dashboard/admin/script-detection",
+      icon: Shield,
+      roles: ["admin"],
+    },
+    {
       title: "Notificaciones",
       href: "/dashboard/notifications",
       icon: Bell,
@@ -119,17 +146,22 @@ export function DashboardNav({ userRole }: DashboardNavProps) {
     <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
       {filteredNavItems.map((item) => {
         const Icon = item.icon
+        const isTrackingUniversal = item.href.includes('tracking-universal')
+        
         return (
           <Link
             key={item.href}
             href={item.href}
             className={cn(
-              "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
+              "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary relative",
               pathname === item.href && "bg-muted text-primary",
             )}
           >
             <Icon className="h-4 w-4" />
-            {item.title}
+            <span className="flex items-center gap-2">
+              {item.title}
+              {isTrackingUniversal && <RecommendedBadge />}
+            </span>
           </Link>
         )
       })}

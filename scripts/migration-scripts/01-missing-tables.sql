@@ -75,16 +75,7 @@ CREATE TABLE IF NOT EXISTS public.coupon_stats (
   UNIQUE(coupon_id, date)
 );
 
-CREATE TABLE IF NOT EXISTS public.notifications (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-  title TEXT NOT NULL,
-  message TEXT NOT NULL,
-  type TEXT DEFAULT 'info',
-  is_read BOOLEAN DEFAULT false,
-  data JSONB,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
+-- Tabla notifications movida al esquema social-features.sql
 
 CREATE TABLE IF NOT EXISTS public.page_views (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -135,7 +126,7 @@ ALTER TABLE public.banners ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.brands ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.coupon_stats ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
+-- RLS para notifications se maneja en social-features.sql
 ALTER TABLE public.page_views ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.rating_comments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.rating_votes ENABLE ROW LEVEL SECURITY;

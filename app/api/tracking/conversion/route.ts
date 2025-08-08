@@ -164,7 +164,7 @@ export async function GET(request: NextRequest) {
 (function() {
   // Cuponomics Tracking Pixel
   var pixelId = '${pixel_id}';
-  var apiUrl = '${process.env.NEXT_PUBLIC_API_URL || "https://cuponomics.com"}/api/tracking/conversion';
+  var apiUrl = '${process.env.NEXT_PUBLIC_API_URL || "https://cuponomics.app"}/api/tracking/conversion';
   
   // Función para enviar conversión
   window.cuponomicsTrack = function(eventType, data) {

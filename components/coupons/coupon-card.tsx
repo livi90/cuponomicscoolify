@@ -11,6 +11,7 @@ import { useUser } from "@/hooks/use-user"
 import { Star, Zap, Flame, Clock, Heart, Store } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { NewBadge } from "@/components/ui/new-badge"
+import { EarlyAdopterBadge } from "@/components/ui/early-adopter-badge"
 
 interface CouponCardProps {
   coupon: Coupon
@@ -116,6 +117,9 @@ export function CouponCard({ coupon, showStoreInfo = true }: CouponCardProps) {
           <span className="flex items-center gap-1 bg-yellow-500 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow">
             <Flame className="w-4 h-4 mr-1" /> Popular
           </span>
+        )}
+        {coupon.store?.is_early_adopter && (
+          <EarlyAdopterBadge size="sm" />
         )}
       </div>
       {user && (

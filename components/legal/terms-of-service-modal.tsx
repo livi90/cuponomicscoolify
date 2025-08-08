@@ -50,7 +50,7 @@ export function TermsOfServiceModal({ children, variant = "link" }: TermsOfServi
               <div className="bg-gray-50 p-3 rounded-lg">
                 <p className="text-sm"><strong>Datos del titular:</strong></p>
                 <p className="text-sm">• Nombre: Cuponomics</p>
-                <p className="text-sm">• Email de contacto: cuponomicsuppor@gmail.com</p>
+                <p className="text-sm">• Email de contacto: hello@cuponomics.app</p>
               </div>
             </section>
 
@@ -192,7 +192,7 @@ export function TermsOfServiceModal({ children, variant = "link" }: TermsOfServi
               <p className="text-gray-700">
                 Para cualquier consulta sobre estos términos:
               </p>
-              <p className="text-gray-700 font-medium">Email: cuponomicsuppor@gmail.com</p>
+              <p className="text-gray-700 font-medium">Email: hello@cuponomics.app</p>
             </section>
 
             <section>

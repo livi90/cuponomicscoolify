@@ -22,10 +22,10 @@ export function Footer() {
             </p>
             <div className="flex space-x-4">
               <a
-                href="mailto:cuponomicsuppor@gmail.com"
+                href="mailto:hello@cuponomics.app"
                 className="text-gray-300 hover:text-white text-sm"
               >
-                cuponomicsuppor@gmail.com
+                hello@cuponomics.app
               </a>
             </div>
           </div>
