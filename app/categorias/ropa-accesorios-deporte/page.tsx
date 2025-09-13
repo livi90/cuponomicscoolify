@@ -24,22 +24,22 @@ export default function RopaAccesoriosDeportePage() {
   const subcategories = [
     { 
       name: "Ropa", 
-      image: "/Imagenes landing/imagens cada categoría/Ropa accesorios deporte/ropa.png",
+      image: "/Imagenes landing/imagens cada categoría/ropaaccesoriosdeporte/ropa.png",
       query: "ropa camiseta pantalon vestido zara hm"
     },
     { 
       name: "Accesorios", 
-      image: "/Imagenes landing/imagens cada categoría/Ropa accesorios deporte/Accesorios.png",
+      image: "/Imagenes landing/imagens cada categoría/ropaaccesoriosdeporte/Accesorios.png",
       query: "reloj bolso gafas collar pulsera"
     },
     { 
       name: "Deporte", 
-      image: "/Imagenes landing/imagens cada categoría/Ropa accesorios deporte/deporte.png",
+      image: "/Imagenes landing/imagens cada categoría/ropaaccesoriosdeporte/deporte.png",
       query: "deporte fitness gym nike adidas"
     },
     { 
       name: "Calzado", 
-      image: "/Imagenes landing/imagens cada categoría/Ropa accesorios deporte/Calzado.png",
+      image: "/Imagenes landing/imagens cada categoría/ropaaccesoriosdeporte/Calzado.png",
       query: "zapatos zapatillas botas nike adidas"
     },
   ]
@@ -61,7 +61,7 @@ export default function RopaAccesoriosDeportePage() {
       <div className="relative">
         <div className="relative h-80 lg:h-96 overflow-hidden">
           <Image
-            src="/Imagenes landing/imagens cada categoría/Ropa accesorios deporte/banner ropa accesorios deporte.png"
+            src="/Imagenes landing/imagens cada categoría/ropaaccesoriosdeporte/banner ropa accesorios deporte.png"
             alt="Ropa Accesorios Deporte Banner"
             fill
             className="object-cover"

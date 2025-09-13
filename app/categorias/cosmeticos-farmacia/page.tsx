@@ -24,22 +24,22 @@ export default function CosmeticosFarmaciaPage() {
   const subcategories = [
     { 
       name: "Maquillaje", 
-      image: "/Imagenes landing/imagens cada categoría/Cosméticos Farmacia/maquillage.png",
+      image: "/Imagenes landing/imagens cada categoría/cosmeticosfarmacia/maquillage.png",
       query: "maquillaje base labial mascara loreal maybelline"
     },
     { 
       name: "Skincare", 
-      image: "/Imagenes landing/imagens cada categoría/Cosméticos Farmacia/skincare.png",
+      image: "/Imagenes landing/imagens cada categoría/cosmeticosfarmacia/skincare.png",
       query: "crema facial serum hidratante nivea"
     },
     { 
       name: "Perfumes", 
-      image: "/Imagenes landing/imagens cada categoría/Cosméticos Farmacia/perfumes.png",
+      image: "/Imagenes landing/imagens cada categoría/cosmeticosfarmacia/perfumes.png",
       query: "perfume fragancia colonia chanel dior"
     },
     { 
       name: "Farmacia", 
-      image: "/Imagenes landing/imagens cada categoría/Cosméticos Farmacia/farmacia.png",
+      image: "/Imagenes landing/imagens cada categoría/cosmeticosfarmacia/farmacia.png",
       query: "farmacia vitaminas parafarmacia eucerin"
     },
   ]
@@ -61,7 +61,7 @@ export default function CosmeticosFarmaciaPage() {
       <div className="relative">
         <div className="relative h-80 lg:h-96 overflow-hidden">
           <Image
-            src="/Imagenes landing/imagens cada categoría/Cosméticos Farmacia/banner cometicos.png"
+            src="/Imagenes landing/imagens cada categoría/cosmeticosfarmacia/banner cometicos.png"
             alt="Cosméticos Farmacia Banner"
             fill
             className="object-cover"

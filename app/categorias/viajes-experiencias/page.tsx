@@ -37,7 +37,7 @@ export default function ViajesExperienciasPage() {
       {/* Header con banner */}
       <div className="relative h-64">
         <img
-          src="/Imagenes landing/imagens cada categoría/6 Viajes Experiencias/7baner.png"
+          src="/Imagenes landing/imagens cada categoría/Viajesexperiencias/7baner.png"
           alt="Viajes & Experiencias"
           className="w-full h-full object-cover"
         />
