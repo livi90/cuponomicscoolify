@@ -30,22 +30,22 @@ export default function ElectrodomesticosHogarPage() {
   const subcategories = [
     { 
       name: "Electrodomésticos", 
-      image: "/Imagenes landing/imagens cada categoría/Electrodomésticos & Hogar/Electrodomesticos.png",
+      image: "/Imagenes landing/imagens cada categoría/Electrodomésticos Hogar/electrodomesticos.png",
       query: "nevera lavadora lavavajillas bosch samsung lg"
     },
     { 
       name: "TV y Audio", 
-      image: "/Imagenes landing/imagens cada categoría/Electrodomésticos & Hogar/Tv y audio.png",
+      image: "/Imagenes landing/imagens cada categoría/Electrodomésticos Hogar/tvyaudio.png",
       query: "television tv smart tv samsung lg sony"
     },
     { 
       name: "Cocina", 
-      image: "/Imagenes landing/imagens cada categoría/Electrodomésticos & Hogar/cocina.png",
+      image: "/Imagenes landing/imagens cada categoría/Electrodomésticos Hogar/cocina.png",
       query: "microondas horno cafetera freidora"
     },
     { 
       name: "Hogar", 
-      image: "/Imagenes landing/imagens cada categoría/Electrodomésticos & Hogar/Hogar.png",
+      image: "/Imagenes landing/imagens cada categoría/Electrodomésticos Hogar/hogar.png",
       query: "decoracion muebles hogar aspiradora"
     },
   ]
@@ -67,7 +67,7 @@ export default function ElectrodomesticosHogarPage() {
       <div className="relative">
         <div className="relative h-80 lg:h-96 overflow-hidden">
           <Image
-            src="/Imagenes landing/imagens cada categoría/Electrodomésticos & Hogar/banner pagina ELECTRODOMESTICOS (copy).png"
+            src="/Imagenes landing/imagens cada categoría/Electrodomésticos Hogar/electrodomesticosbanner.png"
             alt="Electrodomésticos Hogar Banner"
             fill
             className="object-cover"
