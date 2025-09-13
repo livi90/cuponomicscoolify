@@ -1,5 +1,4 @@
 import { MetadataRoute } from 'next'
-import { createClient } from '@/lib/supabase/server'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://cuponomics.app'
@@ -43,6 +42,48 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.6,
     },
     {
+      url: `${baseUrl}/comparar-precios`,
+      lastModified: new Date(),
+      changeFrequency: 'daily' as const,
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/categorias/tecnologia`,
+      lastModified: new Date(),
+      changeFrequency: 'daily' as const,
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/categorias/ropa-accesorios-deporte`,
+      lastModified: new Date(),
+      changeFrequency: 'daily' as const,
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/categorias/electrodomesticos-hogar`,
+      lastModified: new Date(),
+      changeFrequency: 'daily' as const,
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/categorias/cosmeticos-farmacia`,
+      lastModified: new Date(),
+      changeFrequency: 'daily' as const,
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/categorias/sneakers-zapatos`,
+      lastModified: new Date(),
+      changeFrequency: 'daily' as const,
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/producto/ps5-pro-2tb`,
+      lastModified: new Date(),
+      changeFrequency: 'daily' as const,
+      priority: 0.9,
+    },
+    {
       url: `${baseUrl}/privacy-policy`,
       lastModified: new Date(),
       changeFrequency: 'monthly' as const,
@@ -56,6 +97,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ]
 
+  // Por ahora solo devolvemos páginas estáticas para evitar errores de build
+  return staticPages
+
+  /* TODO: Reactivar cuando se solucione el tema de cookies en el servidor
   try {
     const supabase = await createClient()
     
@@ -111,4 +156,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // En caso de error, devolver solo las páginas estáticas
     return staticPages
   }
+  */
 } 

@@ -139,7 +139,7 @@ export function GlobalNav() {
             <img
               src="/images/Cuponomics-logo.png"
               alt="Cuponomics Logo"
-              className="h-12 w-auto"
+              className="h-18 w-auto"
               style={{ display: "block" }}
             />
           </Link>

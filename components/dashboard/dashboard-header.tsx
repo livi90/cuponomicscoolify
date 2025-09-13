@@ -4,7 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Menu, Home, Search, ShoppingBag, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet"
 import { DashboardNav } from "./dashboard-nav"
 import { useState } from "react"
 
@@ -31,6 +31,7 @@ export function DashboardHeader({ userEmail, userRole }: DashboardHeaderProps) {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="pr-0">
+            <SheetTitle className="sr-only">Menú de navegación móvil</SheetTitle>
             <MobileNav userRole={userRole} setOpen={setOpen} />
           </SheetContent>
         </Sheet>

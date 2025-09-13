@@ -1,81 +1,70 @@
 #!/bin/bash
 
-# Script de deploy para Cuponomics
-# Este script construye y despliega la aplicación con las variables de entorno correctas
+# Script de despliegue para Cuponomics
+echo "🚀 Iniciando proceso de despliegue de Cuponomics..."
 
-set -e  # Salir si hay algún error
+# Verificar que estamos en la rama correcta
+current_branch=$(git branch --show-current)
+echo "📋 Rama actual: $current_branch"
 
-echo "🚀 Iniciando deploy de Cuponomics..."
-
-# Verificar si estamos en el directorio correcto
-if [ ! -f "package.json" ]; then
-    echo "❌ Error: No se encontró package.json. Asegúrate de estar en el directorio raíz del proyecto."
-    exit 1
-fi
-
-# Verificar si Docker está instalado
-if ! command -v docker &> /dev/null; then
-    echo "❌ Error: Docker no está instalado. Por favor instala Docker primero."
-    exit 1
-fi
-
-# Verificar si docker-compose está instalado
-if ! command -v docker-compose &> /dev/null; then
-    echo "❌ Error: docker-compose no está instalado. Por favor instala docker-compose primero."
-    exit 1
-fi
-
-echo "📋 Verificando variables de entorno..."
-
-# Verificar si existe un archivo .env
-if [ ! -f ".env" ]; then
-    echo "⚠️  Advertencia: No se encontró archivo .env. Usando valores por defecto."
-    echo "📝 Creando archivo .env con valores por defecto..."
+# Verificar estado del repositorio
+echo "🔍 Verificando estado del repositorio..."
+if [ -n "$(git status --porcelain)" ]; then
+    echo "📝 Archivos modificados detectados:"
+    git status --short
     
-    cat > .env << EOF
-# Variables de entorno para Cuponomics
-NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
-SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU
-NODE_ENV=production
-PORT=3000
-HOSTNAME=0.0.0.0
-EOF
-    echo "✅ Archivo .env creado con valores por defecto."
-fi
+    # Agregar todos los cambios
+    echo "➕ Agregando cambios al staging..."
+    git add .
+    
+    # Crear commit
+    echo "💾 Creando commit..."
+    git commit -m "feat: Mejoras en landing page con ofertas dinámicas y cupones reales
 
-echo "🔧 Construyendo imagen Docker..."
-
-# Construir la imagen con las variables de entorno
-docker build \
-    --build-arg NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL:-http://localhost:54321} \
-    --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0} \
-    --build-arg SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU} \
-    -t cuponomics-app .
-
-if [ $? -eq 0 ]; then
-    echo "✅ Imagen construida exitosamente."
+- ✨ Sección 'Ofertas destacadas' ahora usa API real de búsqueda de productos
+- 🎯 Sección 'Cupones más utilizados' muestra cupones reales de la base de datos
+- 📱 Reducido protagonismo de 'Últimas Ofertas Agregadas' para mejor UX
+- 🔧 Agregado botón de llamada a la acción al estilo Shoparize
+- 🐛 Solucionado error de claves duplicadas en React
+- 🐳 Actualizado Dockerfile con variables de entorno necesarias
+- 🎨 Mejorado diseño profesional y minimalista"
+    
+    echo "✅ Commit creado exitosamente"
 else
-    echo "❌ Error al construir la imagen Docker."
-    exit 1
+    echo "ℹ️ No hay cambios para commitear"
 fi
 
-echo "🚀 Iniciando contenedor..."
+# Mostrar el último commit
+echo "📄 Último commit:"
+git log --oneline -1
 
-# Detener contenedores existentes
-docker-compose down 2>/dev/null || true
-
-# Iniciar con docker-compose
-docker-compose -f docker-compose.prod.yml up -d
-
-if [ $? -eq 0 ]; then
-    echo "✅ Contenedor iniciado exitosamente."
-    echo "🌐 La aplicación está disponible en: http://localhost:3000"
-    echo "📊 Para ver los logs: docker-compose -f docker-compose.prod.yml logs -f"
-    echo "🛑 Para detener: docker-compose -f docker-compose.prod.yml down"
+# Preguntar si hacer push
+read -p "¿Deseas hacer push al repositorio remoto? (y/N): " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    echo "🌐 Haciendo push al repositorio remoto..."
+    git push origin $current_branch
+    echo "✅ Push completado"
+    
+    echo ""
+    echo "🎉 ¡Despliegue preparado!"
+    echo "📋 Próximos pasos:"
+    echo "   1. Ve a tu panel de Coolify"
+    echo "   2. Inicia el redeploy de la aplicación"
+    echo "   3. Verifica que todas las variables de entorno estén configuradas:"
+    echo "      - NEXT_PUBLIC_SUPABASE_URL"
+    echo "      - NEXT_PUBLIC_SUPABASE_ANON_KEY"
+    echo "      - SUPABASE_SERVICE_ROLE_KEY"
+    echo "      - SERPAPI_KEY"
+    echo "      - NEXT_PUBLIC_MEILISEARCH_URL"
+    echo "      - SERVICE_PASSWORD_MEILISEARCH"
+    echo "      - GOOGLE_VERIFICATION"
+    echo "      - YANDEX_VERIFICATION"
+    echo "      - YAHOO_VERIFICATION"
+    echo ""
+    echo "🔗 URL de producción: https://cuponomics.app"
 else
-    echo "❌ Error al iniciar el contenedor."
-    exit 1
+    echo "⏸️ Push cancelado. Puedes hacerlo manualmente con: git push origin $current_branch"
 fi
 
-echo "🎉 ¡Deploy completado exitosamente!" 
+echo "✨ Script completado"

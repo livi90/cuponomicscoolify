@@ -105,15 +105,26 @@ export default async function ProductosEnOfertaPage() {
       </Head>
       
       <div className="min-h-screen">
-        {/* Hero Section */}
-        <header className="relative bg-gradient-to-br from-emerald-600 via-teal-500 to-cyan-500 py-8 md:py-12 overflow-hidden shadow-lg min-h-[180px]">
+        {/* Hero Section con Banner de Imagen */}
+        <header className="relative overflow-hidden shadow-lg min-h-[400px]">
+          <div className="absolute inset-0">
+            <Image
+              src="/Imagenes landing/imagens cada categoría/banner productos en oferta.png"
+              alt="Productos en Oferta Banner"
+              fill
+              className="object-cover"
+              priority
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-transparent"></div>
+          </div>
+          
           {/* Elementos decorativos animados */}
-          <div className="absolute -top-8 left-1/4 w-20 h-20 bg-gradient-to-tr from-emerald-400 to-teal-400 rounded-full blur-2xl opacity-30 animate-bounce-slow z-0" />
-          <div className="absolute top-6 right-1/4 w-14 h-14 bg-gradient-to-tr from-teal-400 to-cyan-400 rounded-full blur-2xl opacity-20 animate-bounce-slower z-0" />
-          <div className="absolute left-8 bottom-0 w-10 h-10 bg-gradient-to-tr from-emerald-300 to-teal-300 rounded-full blur-xl opacity-20 animate-bounce-slowest z-0" />
+          <div className="absolute -top-8 left-1/4 w-20 h-20 bg-gradient-to-tr from-orange-400 to-red-400 rounded-full blur-2xl opacity-30 animate-bounce-slow z-0" />
+          <div className="absolute top-6 right-1/4 w-14 h-14 bg-gradient-to-tr from-red-400 to-orange-400 rounded-full blur-2xl opacity-20 animate-bounce-slower z-0" />
+          <div className="absolute left-8 bottom-0 w-10 h-10 bg-gradient-to-tr from-orange-300 to-red-300 rounded-full blur-xl opacity-20 animate-bounce-slowest z-0" />
           {/* Iconos decorativos */}
-          <div className="absolute left-8 top-8 text-[2.5rem] font-black text-emerald-200 drop-shadow-2xl opacity-50 select-none animate-wiggle">💸</div>
-          <div className="absolute right-8 bottom-8 text-[2rem] font-black text-teal-200 drop-shadow-2xl opacity-40 select-none animate-wiggle-reverse">💲</div>
+          <div className="absolute left-8 top-8 text-[2.5rem] font-black text-orange-200 drop-shadow-2xl opacity-50 select-none animate-wiggle">💸</div>
+          <div className="absolute right-8 bottom-8 text-[2rem] font-black text-red-200 drop-shadow-2xl opacity-40 select-none animate-wiggle-reverse">💲</div>
           
           <div className="container mx-auto px-4 relative z-10">
             <div className="max-w-3xl mx-auto text-center">
@@ -146,11 +157,11 @@ export default async function ProductosEnOfertaPage() {
           <section className="mb-16">
             <div className="text-center mb-8">
               <div className="flex items-center justify-center gap-3 mb-4">
-                <span className="text-4xl font-black text-emerald-600 drop-shadow-lg">💸</span>
-                <h2 className="text-3xl font-black bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent drop-shadow-lg">
+                <span className="text-4xl font-black text-orange-600 drop-shadow-lg">💸</span>
+                <h2 className="text-3xl font-black bg-gradient-to-r from-orange-600 via-red-600 to-orange-500 bg-clip-text text-transparent drop-shadow-lg">
                   PRODUCTOS DE OUTLET
                 </h2>
-                <span className="text-4xl font-black text-emerald-600 drop-shadow-lg">💲</span>
+                <span className="text-4xl font-black text-orange-600 drop-shadow-lg">💲</span>
               </div>
               <p className="text-gray-600 text-lg font-semibold max-w-3xl mx-auto">
                 Descubre productos con descuentos increíbles de tiendas outlet. 
@@ -166,9 +177,9 @@ export default async function ProductosEnOfertaPage() {
               <h2 className="text-3xl font-bold text-gray-800 mb-4">Productos en Oferta</h2>
               <p className="text-gray-600 text-lg">Próximamente más productos con ofertas especiales</p>
             </div>
-            <div className="flex h-60 items-center justify-center rounded-md border border-dashed bg-gradient-to-br from-emerald-50 to-teal-50">
+            <div className="flex h-60 items-center justify-center rounded-md border border-dashed bg-gradient-to-br from-orange-50 to-red-50">
               <div className="text-center p-6">
-                <h3 className="text-2xl font-bold mb-2 text-emerald-700">Próximamente</h3>
+                <h3 className="text-2xl font-bold mb-2 text-orange-700">Próximamente</h3>
                 <p className="text-gray-600 max-w-md mx-auto">
                   Estamos trabajando para traerte los mejores productos en oferta. Vuelve pronto para descubrir increíbles
                   descuentos y novedades.
@@ -194,13 +205,13 @@ export default async function ProductosEnOfertaPage() {
         </main>
 
         {/* Newsletter Section */}
-        <section className="py-12 bg-gradient-to-r from-emerald-50 to-teal-50">
+        <section className="py-12 bg-gradient-to-r from-orange-50 to-red-50">
           <div className="container mx-auto px-4">
             <NewsletterForm 
               source="productos-en-oferta"
               title="¡No te pierdas ninguna oferta de outlet!"
               description="Suscríbete a nuestro boletín y recibe las mejores ofertas de outlet directamente en tu correo."
-              className="text-emerald-800"
+              className="text-orange-800"
             />
           </div>
         </section>

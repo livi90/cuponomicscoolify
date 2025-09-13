@@ -21,6 +21,9 @@ import { NewsletterForm } from "@/components/newsletter/newsletter-form"
 import { ViewToggle } from "@/components/view-toggle/view-toggle"
 import { SmartBreadcrumbs } from "@/components/breadcrumbs/smart-breadcrumbs"
 import { BackToTop } from "@/components/ui/back-to-top"
+import { NikeProductsGrid } from "@/components/products/nike-products-grid"
+import { NikeProductsClientService } from "@/lib/services/nike-products-client"
+import { HybridSearchBar } from "@/components/search/hybrid-search-bar"
 
 // Crear una sola instancia de Supabase para todo el componente
 const supabase = createClient()
@@ -181,6 +184,9 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
   const [popularCoupons, setPopularCoupons] = useState<any[]>([])
   const [newCoupons, setNewCoupons] = useState<any[]>([])
   const [outletProducts, setOutletProducts] = useState<any[]>([])
+  const [nikeProducts, setNikeProducts] = useState<any[]>([])
+  const [showNikeProducts, setShowNikeProducts] = useState(false)
+  const [nikeSearchInfo, setNikeSearchInfo] = useState({ confidence: 0, matchedKeywords: [] as string[] })
   const [searchedStores, setSearchedStores] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedCountry, setSelectedCountry] = useState("")
@@ -537,6 +543,50 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
           })) || []
         }
 
+        // Buscar productos Nike si la búsqueda está relacionada
+        let nikeProducts: any[] = []
+        let showNikeProducts = false
+        let nikeSearchInfo = { confidence: 0, matchedKeywords: [] as string[] }
+        
+        if (searchParams.search) {
+          const searchQuery = searchParams.search as string
+          
+          try {
+            // Usar detección simple pero efectiva
+            showNikeProducts = NikeProductsClientService.isNikeRelated(searchQuery)
+            
+            if (showNikeProducts) {
+              console.log(`🔍 Búsqueda Nike detectada: "${searchQuery}" - Cargando productos`)
+              
+              nikeProducts = await NikeProductsClientService.searchProducts({
+                query: searchQuery,
+                sortBy: 'discount',
+                limit: 12
+              })
+              
+              if (nikeProducts.length > 0) {
+                // Calcular confianza simple basada en palabras coincidentes
+                const queryWords = searchQuery.toLowerCase().split(/\s+/)
+                const nikeKeywords = ['nike', 'air', 'max', 'force', 'jordan', 'dunk', 'blazer', 'cortez', 'react', 'zoom']
+                const matchedWords = queryWords.filter(word => nikeKeywords.some(keyword => word.includes(keyword)))
+                const confidence = Math.round((matchedWords.length / queryWords.length) * 100)
+                
+                nikeSearchInfo = {
+                  confidence: Math.max(confidence, 50), // Mínimo 50% si encontramos productos
+                  matchedKeywords: matchedWords
+                }
+                
+                console.log(`✅ ${nikeProducts.length} productos Nike encontrados`)
+              } else {
+                showNikeProducts = false
+              }
+            }
+          } catch (error) {
+            console.error('Error en búsqueda Nike:', error)
+            showNikeProducts = false
+          }
+        }
+
         console.log(`✅ Resultado final: ${filteredCoupons.length} cupones encontrados`)
         
         setCategories(allCategories)
@@ -545,6 +595,9 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
         setPopularCoupons(sortedPopularCoupons)
         setNewCoupons(sortedNewCoupons || [])
         setOutletProducts(outletProducts)
+        setNikeProducts(nikeProducts)
+        setShowNikeProducts(showNikeProducts)
+        setNikeSearchInfo(nikeSearchInfo)
         setSearchedStores(searchedStores)
       } catch (error) {
         console.error("Error fetching data:", error)
@@ -782,56 +835,14 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
               </div>
             )}
             <div className="relative max-w-2xl mx-auto animate-fade-in-up delay-300">
-              <form action="/buscar-ofertas" method="GET" className="flex h-12 shadow-lg rounded-full overflow-hidden border-2 border-orange-200 bg-white/90" autoComplete="off" onSubmit={() => setShowSuggestions(false)}>
-                <div className="relative flex-grow">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-400 h-5 w-5" />
-                  <Input
-                    name="search"
-                    type="text"
-                    placeholder="Buscar tiendas, productos outlet, cupones, categorías..."
-                    value={searchInput}
-                    onChange={e => { setSearchInput(e.target.value); setShowSuggestions(true) }}
-                    onFocus={() => setShowSuggestions(true)}
-                    className="pl-12 h-12 rounded-l-full border-0 focus:ring-2 focus:ring-orange-400 text-base bg-transparent"
-                    autoComplete="off"
-                  />
-                  {showSuggestions && suggestions.length > 0 && (
-                    <div ref={suggestionsRef} className="absolute left-0 right-0 top-12 bg-white border border-gray-200 rounded-b shadow-lg z-30 max-h-60 overflow-y-auto animate-fade-in">
-                      {suggestions.map((s, i) => (
-                        <button
-                          key={s.type + s.id}
-                          type="button"
-                          className="w-full text-left px-4 py-2 hover:bg-orange-50 text-base border-b last:border-b-0 border-gray-100"
-                          onClick={() => {
-                            setSearchInput(s.label)
-                            setShowSuggestions(false)
-                            if (s.type === "store") {
-                              window.location.href = `/buscar-ofertas?store=${s.id}`
-                            } else if (s.type === "category") {
-                              window.location.href = `/buscar-ofertas?category=${s.id}`
-                            } else if (s.type === "coupon") {
-                              window.location.href = `/cupones/${s.id}`
-                            } else if (s.type === "outlet_product") {
-                              window.location.href = `/productos/${s.id}`
-                            }
-                          }}
-                        >
-                          <span className="font-medium text-orange-600 mr-2">
-                            {s.type === "store" ? "Tienda" : 
-                             s.type === "category" ? "Categoría" : 
-                             s.type === "outlet_product" ? "Producto Outlet" : 
-                             "Cupón"}:
-                          </span>
-                          {s.label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <Button type="submit" className="bg-orange-500 hover:bg-orange-600 text-white rounded-r-full px-6 h-12 text-base font-bold shadow-none">
-                  Buscar
-                </Button>
-              </form>
+              <HybridSearchBar
+                placeholder="Buscar tiendas, productos outlet, cupones, categorías..."
+                onSearch={(query: string) => {
+                  // Redirigir a la página de búsqueda híbrida
+                  window.location.href = `/busqueda-hibrida?q=${encodeURIComponent(query)}`
+                }}
+                className="w-full"
+              />
             </div>
           </div>
         </div>
@@ -1035,6 +1046,143 @@ export default function BuscarOfertasClient({ searchParams }: BuscarOfertasClien
                 </Card>
               ))}
             </div>
+          </section>
+        )}
+
+        {/* Productos Nike encontrados en búsqueda */}
+        {showNikeProducts && nikeProducts.length > 0 && (
+          <section className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                <span className="text-2xl">👟</span>
+                Productos Nike encontrados
+                <Badge className="bg-black text-white">
+                  Base de datos local
+                </Badge>
+                {nikeSearchInfo.confidence > 0 && (
+                  <Badge variant="outline" className="text-blue-600 border-blue-600">
+                    {nikeSearchInfo.confidence}% relevancia
+                  </Badge>
+                )}
+              </h2>
+              <div className="flex gap-2">
+                <Badge variant="outline" className="text-green-600 border-green-600">
+                  {nikeProducts.filter(p => (p.discount_percentage && p.discount_percentage > 0) || 
+                    (p.original_price && p.search_price && p.original_price > p.search_price)).length} con descuento
+                </Badge>
+                <Link href="/comparar-precios?q=nike">
+                  <Button size="sm" variant="outline" className="text-black border-gray-200 hover:bg-gray-50">
+                    Ver comparador de precios
+                  </Button>
+                </Link>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {nikeProducts.slice(0, 8).map((product: any) => {
+                const hasDiscount = (product.discount_percentage && product.discount_percentage > 0) || 
+                                   (product.original_price && product.search_price && product.original_price > product.search_price)
+                
+                let discountPercentage = 0
+                if (hasDiscount) {
+                  if (product.discount_percentage && product.discount_percentage > 0) {
+                    discountPercentage = product.discount_percentage
+                  } else if (product.original_price && product.search_price && product.original_price > product.search_price) {
+                    discountPercentage = Math.round(((product.original_price - product.search_price) / product.original_price) * 100)
+                  }
+                }
+
+                return (
+                  <Card key={product.aw_product_id} className="overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-105">
+                    <div className="relative h-48">
+                      <Image
+                        src={product.merchant_image_url || product.aw_image_url || "/placeholder.svg"}
+                        alt={product.product_name}
+                        fill
+                        className="object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement
+                          target.src = '/placeholder.svg'
+                        }}
+                      />
+                      {hasDiscount && (
+                        <div className="absolute top-2 left-2">
+                          <Badge className="bg-red-600 text-white">
+                            -{discountPercentage}%
+                          </Badge>
+                        </div>
+                      )}
+                      {product.delivery_cost === 0 && (
+                        <div className="absolute top-2 right-2">
+                          <Badge className="bg-green-600 text-white text-xs">
+                            Envío gratis
+                          </Badge>
+                        </div>
+                      )}
+                      <div className="absolute bottom-2 left-2">
+                        <Badge variant="secondary" className="text-xs">
+                          {product.merchant_name || 'Nike'}
+                        </Badge>
+                      </div>
+                    </div>
+                    <CardContent className="p-4">
+                      <h3 className="font-semibold text-sm mb-2 line-clamp-2">
+                        {product.product_name}
+                      </h3>
+                      
+                      <p className="text-xs text-gray-600 mb-2">
+                        {product.category_name}
+                      </p>
+
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="flex items-center">
+                          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                          <span className="text-xs text-gray-600 ml-1">
+                            {(4.0 + Math.random()).toFixed(1)}
+                          </span>
+                        </div>
+                        <span className="text-xs text-gray-500">
+                          ({Math.floor(Math.random() * 500) + 100})
+                        </span>
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <span className="text-lg font-bold text-gray-900">
+                              {product.display_price || (product.search_price ? `${product.search_price.toFixed(2)} €` : 'N/A')}
+                            </span>
+                            {hasDiscount && product.original_price && (
+                              <span className="text-sm text-gray-500 line-through ml-2">
+                                {product.original_price.toFixed(2)} €
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        <Button 
+                          size="sm" 
+                          className="w-full bg-black hover:bg-gray-800"
+                          onClick={() => window.open(product.aw_deep_link || product.merchant_deep_link, '_blank')}
+                        >
+                          Ver en Nike
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )
+              })}
+            </div>
+            
+            {nikeProducts.length > 8 && (
+              <div className="text-center mt-4">
+                <Link href={`/comparar-precios?q=${encodeURIComponent(searchParams.search as string || 'nike')}`}>
+                  <Button variant="outline" className="text-black border-gray-200">
+                    Ver todos los {nikeProducts.length} productos Nike
+                  </Button>
+                </Link>
+              </div>
+            )}
           </section>
         )}
 

@@ -57,7 +57,7 @@ export const metadata: Metadata = {
     images: [
       {
         url: '/images/Cuponomics-logo.png',
-        width: 1200,
+        width: 1400,
         height: 630,
         alt: 'Cuponomics - Ofertas y Cupones',
       },
@@ -171,6 +171,12 @@ export default function RootLayout({
             />
           </ThemeProvider>
         </LocaleProvider>
+        
+        {/* eBay Smart Links Script */}
+        <script dangerouslySetInnerHTML={{
+          __html: `window._epn = {campaign: 5339118953};`
+        }} />
+        <script src="https://epnt.ebay.com/static/epn-smart-tools.js" async />
       </body>
     </html>
   )

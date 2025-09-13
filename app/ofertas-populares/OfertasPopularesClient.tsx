@@ -223,14 +223,25 @@ export default function OfertasPopularesClient({ searchParams }: OfertasPopulare
 
   return (
     <div className="min-h-screen">
-      <header className="relative bg-gradient-to-br from-purple-600 via-pink-500 to-red-500 py-8 md:py-12 overflow-hidden shadow-lg min-h-[180px]">
+      <header className="relative overflow-hidden shadow-lg min-h-[400px]">
+        <div className="absolute inset-0">
+          <Image
+            src="/Imagenes landing/imagens cada categoría/banner ofertas populares.png"
+            alt="Ofertas Populares Banner"
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-transparent"></div>
+        </div>
+        
         {/* Elementos decorativos animados */}
-        <div className="absolute -top-8 left-1/4 w-20 h-20 bg-gradient-to-tr from-purple-400 to-pink-400 rounded-full blur-2xl opacity-30 animate-bounce-slow z-0" />
-        <div className="absolute top-6 right-1/4 w-14 h-14 bg-gradient-to-tr from-pink-400 to-red-400 rounded-full blur-2xl opacity-20 animate-bounce-slower z-0" />
-        <div className="absolute left-8 bottom-0 w-10 h-10 bg-gradient-to-tr from-purple-300 to-pink-300 rounded-full blur-xl opacity-20 animate-bounce-slowest z-0" />
+        <div className="absolute -top-8 left-1/4 w-20 h-20 bg-gradient-to-tr from-orange-400 to-red-400 rounded-full blur-2xl opacity-30 animate-bounce-slow z-0" />
+        <div className="absolute top-6 right-1/4 w-14 h-14 bg-gradient-to-tr from-red-400 to-orange-400 rounded-full blur-2xl opacity-20 animate-bounce-slower z-0" />
+        <div className="absolute left-8 bottom-0 w-10 h-10 bg-gradient-to-tr from-orange-300 to-red-300 rounded-full blur-xl opacity-20 animate-bounce-slowest z-0" />
         {/* Iconos decorativos */}
-        <div className="absolute left-8 top-8 text-[2.5rem] font-black text-purple-200 drop-shadow-2xl opacity-50 select-none animate-wiggle">🔥</div>
-        <div className="absolute right-8 bottom-8 text-[2rem] font-black text-pink-200 drop-shadow-2xl opacity-40 select-none animate-wiggle-reverse">⭐</div>
+        <div className="absolute left-8 top-8 text-[2.5rem] font-black text-orange-200 drop-shadow-2xl opacity-50 select-none animate-wiggle">🔥</div>
+        <div className="absolute right-8 bottom-8 text-[2rem] font-black text-red-200 drop-shadow-2xl opacity-40 select-none animate-wiggle-reverse">⭐</div>
         
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
@@ -242,7 +253,7 @@ export default function OfertasPopularesClient({ searchParams }: OfertasPopulare
                 <Trophy className="h-8 w-8 text-yellow-300 animate-pulse" />
               </div>
             <p className="text-white/90 text-base font-semibold drop-shadow-md animate-fade-in-up delay-100">
-              Los cupones más utilizados y mejor valorados por nuestra <span className="text-purple-100 font-bold">comunidad</span>
+              Los cupones más utilizados y mejor valorados por nuestra <span className="text-orange-100 font-bold">comunidad</span>
             </p>
             <div className="flex items-center justify-center gap-4 mt-4 animate-fade-in-up delay-200">
               <div className="flex items-center gap-2 bg-white/20 rounded-full px-4 py-2 backdrop-blur-sm">
@@ -260,17 +271,17 @@ export default function OfertasPopularesClient({ searchParams }: OfertasPopulare
       <BannerAd position="top" />
 
       <main className="container mx-auto px-4 py-12">
-        {/* Aviso de acceso libre a las ofertas (cerrable) */}
+                        {/* Aviso de acceso libre a las ofertas (cerrable) */}
         {showFreeAccessNotice && (
-          <section className="w-full bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-6 mb-8 text-center relative shadow-lg">
+          <section className="w-full bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-xl p-6 mb-8 text-center relative shadow-lg">
             <button
-              className="absolute top-3 right-3 text-emerald-600 hover:text-emerald-800 text-xl font-bold bg-white rounded-full w-8 h-8 flex items-center justify-center shadow hover:shadow-md transition-all"
+              className="absolute top-3 right-3 text-orange-600 hover:text-orange-800 text-xl font-bold bg-white rounded-full w-8 h-8 flex items-center justify-center shadow hover:shadow-md transition-all"
               aria-label="Cerrar aviso"
               onClick={() => setShowFreeAccessNotice(false)}
             >
               ×
             </button>
-            <span className="text-emerald-800 font-bold text-lg">
+            <span className="text-orange-800 font-bold text-lg">
               🎉 ¡No necesitas estar registrado para usar las ofertas de Cuponomics! Puedes aprovechar todos los descuentos sin crear cuenta.
             </span>
           </section>
@@ -279,19 +290,19 @@ export default function OfertasPopularesClient({ searchParams }: OfertasPopulare
         {/* Estadísticas rápidas */}
         <section className="mb-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl p-4 text-white text-center shadow-lg">
+            <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-xl p-4 text-white text-center shadow-lg">
               <div className="text-2xl font-bold">{popularCoupons.length}</div>
               <div className="text-sm opacity-90">Ofertas Populares</div>
             </div>
-            <div className="bg-gradient-to-r from-pink-500 to-red-500 rounded-xl p-4 text-white text-center shadow-lg">
+            <div className="bg-gradient-to-r from-red-500 to-orange-500 rounded-xl p-4 text-white text-center shadow-lg">
               <div className="text-2xl font-bold">{trendingCoupons.length}</div>
               <div className="text-sm opacity-90">Trending Ahora</div>
             </div>
-            <div className="bg-gradient-to-r from-red-500 to-orange-500 rounded-xl p-4 text-white text-center shadow-lg">
+            <div className="bg-gradient-to-r from-orange-600 to-red-600 rounded-xl p-4 text-white text-center shadow-lg">
               <div className="text-2xl font-bold">{topRatedCoupons.length}</div>
               <div className="text-sm opacity-90">Mejor Valorados</div>
             </div>
-            <div className="bg-gradient-to-r from-orange-500 to-yellow-500 rounded-xl p-4 text-white text-center shadow-lg">
+            <div className="bg-gradient-to-r from-red-600 to-orange-600 rounded-xl p-4 text-white text-center shadow-lg">
               <div className="text-2xl font-bold">{mostViewedCoupons.length}</div>
               <div className="text-sm opacity-90">Más Vistos</div>
             </div>
@@ -333,15 +344,15 @@ export default function OfertasPopularesClient({ searchParams }: OfertasPopulare
                 <div className="grid gap-6">
                   <div>
                     <h4 className="font-bold mb-3 text-slate-700 flex items-center gap-2">
-                      <span className="w-2 h-2 bg-gradient-to-r from-purple-400 to-pink-500 rounded-full"></span>
+                      <span className="w-2 h-2 bg-gradient-to-r from-orange-400 to-red-500 rounded-full"></span>
                       Tipo de Popularidad
                     </h4>
                     <div className="flex flex-col gap-2">
                       {[
-                        { id: "trending", label: "Trending Ahora", icon: Flame, color: "from-purple-400 to-pink-500" },
-                        { id: "popular", label: "Más Populares", icon: TrendingUp, color: "from-pink-400 to-red-500" },
-                        { id: "top-rated", label: "Mejor Valorados", icon: Star, color: "from-red-400 to-orange-500" },
-                        { id: "most-viewed", label: "Más Vistos", icon: Eye, color: "from-orange-400 to-yellow-500" },
+                        { id: "trending", label: "Trending Ahora", icon: Flame, color: "from-orange-400 to-red-500" },
+                        { id: "popular", label: "Más Populares", icon: TrendingUp, color: "from-red-400 to-orange-500" },
+                        { id: "top-rated", label: "Mejor Valorados", icon: Star, color: "from-orange-500 to-red-600" },
+                        { id: "most-viewed", label: "Más Vistos", icon: Eye, color: "from-red-500 to-orange-600" },
                       ].map((option) => {
                         const IconComponent = option.icon
                         return (
@@ -366,16 +377,16 @@ export default function OfertasPopularesClient({ searchParams }: OfertasPopulare
                 
                 {/* Referencia muy sutil a productos de outlet al final */}
                 <div className="mt-6 pt-4 border-t border-slate-200">
-                  <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-lg p-3 border border-emerald-100">
+                  <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-lg p-3 border border-orange-100">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-lg">🛍️</span>
-                      <h4 className="font-medium text-emerald-700 text-xs">¿Buscas outlet?</h4>
+                      <h4 className="font-medium text-orange-700 text-xs">¿Buscas outlet?</h4>
                     </div>
-                    <p className="text-xs text-emerald-600 mb-2">
+                    <p className="text-xs text-orange-600 mb-2">
                       Productos con descuentos increíbles
                     </p>
                     <Link href="/productos-en-oferta">
-                      <Button size="sm" className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-medium text-xs py-1 h-6">
+                      <Button size="sm" className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white font-medium text-xs py-1 h-6">
                         Ver Outlet
                       </Button>
                     </Link>
@@ -400,19 +411,19 @@ export default function OfertasPopularesClient({ searchParams }: OfertasPopulare
             <Tabs defaultValue="trending" className="mb-8">
               <div className="flex justify-between items-center mb-6">
                 <TabsList className="bg-gradient-to-r from-slate-100 to-gray-100 rounded-full p-1 flex gap-2 shadow-lg mb-4 border border-slate-200">
-                  <TabsTrigger value="trending" className="flex items-center gap-2 px-6 py-3 rounded-full font-bold text-slate-700 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white transition-all duration-300 hover:scale-105">
+                  <TabsTrigger value="trending" className="flex items-center gap-2 px-6 py-3 rounded-full font-bold text-slate-700 data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white transition-all duration-300 hover:scale-105">
                     <Flame className="h-4 w-4" />
                     <span>Trending</span>
                   </TabsTrigger>
-                  <TabsTrigger value="popular" className="flex items-center gap-2 px-6 py-3 rounded-full font-bold text-slate-700 data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-red-500 data-[state=active]:text-white transition-all duration-300 hover:scale-105">
+                  <TabsTrigger value="popular" className="flex items-center gap-2 px-6 py-3 rounded-full font-bold text-slate-700 data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-orange-500 data-[state=active]:text-white transition-all duration-300 hover:scale-105">
                     <TrendingUp className="h-4 w-4" />
                     <span>Populares</span>
                   </TabsTrigger>
-                  <TabsTrigger value="top-rated" className="flex items-center gap-2 px-6 py-3 rounded-full font-bold text-slate-700 data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-orange-500 data-[state=active]:text-white transition-all duration-300 hover:scale-105">
+                  <TabsTrigger value="top-rated" className="flex items-center gap-2 px-6 py-3 rounded-full font-bold text-slate-700 data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-600 data-[state=active]:to-red-600 data-[state=active]:text-white transition-all duration-300 hover:scale-105">
                     <Star className="h-4 w-4" />
                     <span>Mejor Valorados</span>
                   </TabsTrigger>
-                  <TabsTrigger value="most-viewed" className="flex items-center gap-2 px-6 py-3 rounded-full font-bold text-slate-700 data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-yellow-500 data-[state=active]:text-white transition-all duration-300 hover:scale-105">
+                  <TabsTrigger value="most-viewed" className="flex items-center gap-2 px-6 py-3 rounded-full font-bold text-slate-700 data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-600 data-[state=active]:to-orange-600 data-[state=active]:text-white transition-all duration-300 hover:scale-105">
                     <Eye className="h-4 w-4" />
                     <span>Más Vistos</span>
                   </TabsTrigger>
@@ -487,7 +498,7 @@ export default function OfertasPopularesClient({ searchParams }: OfertasPopulare
                       key={i}
                       variant="outline"
                       size="sm"
-                      className={currentPage === i + 1 ? "bg-purple-500 text-white" : ""}
+                      className={currentPage === i + 1 ? "bg-orange-500 text-white" : ""}
                       onClick={() => setCurrentPage(i + 1)}
                     >
                       {i + 1}
@@ -504,13 +515,13 @@ export default function OfertasPopularesClient({ searchParams }: OfertasPopulare
       </main>
 
       {/* Newsletter Section */}
-      <section className="py-12 bg-gradient-to-r from-purple-50 to-pink-50">
+      <section className="py-12 bg-gradient-to-r from-orange-50 to-red-50">
         <div className="container mx-auto px-4">
           <NewsletterForm 
             source="ofertas-populares"
             title="¡No te pierdas ninguna oferta popular!"
             description="Suscríbete a nuestro boletín y recibe las ofertas más trending directamente en tu correo."
-            className="text-purple-800"
+            className="text-orange-800"
           />
         </div>
       </section>

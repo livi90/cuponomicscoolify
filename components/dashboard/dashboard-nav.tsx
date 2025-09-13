@@ -1,9 +1,11 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { RecommendedBadge } from "@/components/ui/recommended-badge"
+import { Button } from "@/components/ui/button"
+import { createClient } from "@/lib/supabase/client"
 import {
   LayoutDashboard,
   Store,
@@ -20,6 +22,7 @@ import {
   ShoppingBag,
   Zap,
   Shield,
+  LogOut,
 } from "lucide-react"
 
 interface DashboardNavProps {
@@ -28,6 +31,18 @@ interface DashboardNavProps {
 
 export function DashboardNav({ userRole }: DashboardNavProps) {
   const pathname = usePathname()
+  const router = useRouter()
+  const supabase = createClient()
+
+  const handleSignOut = async () => {
+    try {
+      await supabase.auth.signOut()
+      router.push("/")
+      router.refresh()
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error)
+    }
+  }
 
   const navItems = [
     {
@@ -165,6 +180,19 @@ export function DashboardNav({ userRole }: DashboardNavProps) {
           </Link>
         )
       })}
+      
+      {/* Separador */}
+      <div className="border-t my-4" />
+      
+      {/* Botón de Cerrar Sesión */}
+      <Button
+        variant="ghost"
+        onClick={handleSignOut}
+        className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+      >
+        <LogOut className="h-4 w-4 mr-3" />
+        Cerrar Sesión
+      </Button>
     </nav>
   )
 }

@@ -19,6 +19,10 @@ import {
   Target,
   Gift,
   MessageSquare,
+  Search,
+  Tag,
+  Filter,
+  SlidersHorizontal,
 } from "lucide-react"
 import { t } from "@/lib/i18n"
 import Head from "next/head"
@@ -29,6 +33,9 @@ import { LatestOffersSection } from "@/components/latest-offers/latest-offers-se
 import { SpecialEventBanner } from "@/components/banners/special-event-banner"
 import { EarlyAdoptersSection } from "@/components/early-adopters/early-adopters-section"
 import ReviewsFeed from "@/components/social/reviews-feed"
+import { PopularCouponsSection } from "@/components/coupons/popular-coupons-section"
+import { FeaturedOffersSection } from "@/components/products/featured-offers-section"
+
 
 function getLocale() {
   if (typeof window !== "undefined" && window.navigator) {
@@ -53,454 +60,349 @@ export default function HomePage() {
     t(locale, "seo.cupones") || t(locale, "seo.coupons") || t(locale, "seo.cupons") || t(locale, "seo.gutscheine")
   ].filter(Boolean).join(", ")
 
-  const [showFreeAccessNotice, setShowFreeAccessNotice] = useState(true)
+  const [showInfoSection, setShowInfoSection] = useState(false)
 
   return (
     <>
       <Head>
-        <title>{t(locale, "home.title")}</title>
-        <meta name="description" content={t(locale, "home.description")} />
+        <title>Cuponomics - Comparador de Precios y Ofertas</title>
+        <meta name="description" content="Encuentra y compara los mejores precios online. Cupones verificados, ofertas exclusivas y el mejor comparador de precios del mercado." />
         <meta name="keywords" content={seoKeywords} />
-        <meta property="og:title" content={t(locale, "home.title")} />
-        <meta property="og:description" content={t(locale, "home.description")} />
+        <meta property="og:title" content="Cuponomics - Comparador de Precios y Ofertas" />
+        <meta property="og:description" content="Encuentra y compara los mejores precios online. Cupones verificados, ofertas exclusivas y el mejor comparador de precios del mercado." />
         <meta property="og:type" content="website" />
         <meta property="og:locale" content={locale} />
-        <meta name="twitter:title" content={t(locale, "home.title")} />
-        <meta name="twitter:description" content={t(locale, "home.description")} />
+        <meta name="twitter:title" content="Cuponomics - Comparador de Precios y Ofertas" />
+        <meta name="twitter:description" content="Encuentra y compara los mejores precios online. Cupones verificados, ofertas exclusivas y el mejor comparador de precios del mercado." />
       </Head>
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-yellow-50">
+      <div className="min-h-screen bg-white">
         {/* Banner de eventos especiales */}
         <SpecialEventBanner />
-        {/* Hero Section */}
-        <section className="relative overflow-hidden bg-gradient-to-r from-orange-100 via-orange-50 to-yellow-50 text-gray-900">
-          <div className="absolute inset-0 bg-black/5"></div>
-          <div className="relative container mx-auto px-4 py-20 lg:py-32">
-            <div className="grid lg:grid-cols-2 gap-12 items-center bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
-              <div className="space-y-8">
-                <div className="space-y-4">
-                  <Badge className="bg-orange-200/50 text-orange-800 border-orange-300 hover:bg-orange-300">
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    Próximamente plataforma #1 de Cupones
-                  </Badge>
-                  <h1 className="text-4xl lg:text-6xl font-bold leading-tight font-genty text-orange-600">
-                    {t(locale, "home.title")}
-                  </h1>
-                  <p className="text-xl lg:text-2xl text-gray-700 leading-relaxed">
-                    {t(locale, "home.description")}
-                  </p>
-                </div>
+        
+                        {/* Sección de Imágenes Landing - Marketplace Focus */}
+        <section className="py-8 bg-white">
+          <div className="container mx-auto px-4">
 
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Link href="/buscar-ofertas">
-                    <Button
-                      size="lg"
-                      className="bg-white text-orange-600 hover:bg-orange-50 font-semibold px-8 py-4 text-lg"
-                    >
-                      <Gift className="w-5 h-5 mr-2" />
-                      Buscar Ofertas
-                    </Button>
+            {/* Layout Optimizado - Sin espacios vacíos */}
+            <div className="space-y-6">
+              {/* Fila 1: Tecnología destacada + 3 categorías pequeñas */}
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-7">
+                {/* Tecnología - Destacada (2 columnas) */}
+                <Link href="/categorias/tecnologia" className="lg:col-span-2">
+                  <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group cursor-pointer h-52 lg:h-64">
+                    <div className="relative h-full">
+                      <img
+                        src="/Imagenes landing/1.jpg"
+                        alt="Tecnología"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-all duration-300"></div>
+                      <div className="absolute bottom-6 left-6 text-white">
+                        <h3 className="text-2xl lg:text-3xl font-bold">Tecnología</h3>
+                        <p className="text-base lg:text-lg opacity-90">Ordenadores, smartphones y gadgets</p>
+                      </div>
+                    </div>
+                  </Card>
+                </Link>
+
+                {/* 3 categorías reorganizadas: 1 arriba, 2 abajo - Altura total igual a Tecnología */}
+                <div className="lg:col-span-2 space-y-3 h-52 lg:h-64">
+                  {/* Electrodomésticos - Arriba (ancho completo) */}
+                  <Link href="/categorias/electrodomesticos-hogar">
+                    <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group cursor-pointer h-32 lg:h-40">
+                      <div className="relative h-full">
+                        <img
+                          src="/Imagenes landing/3.jpg"
+                          alt="Electrodomésticos"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                        <div className="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-all duration-300"></div>
+                        <div className="absolute bottom-3 left-3 text-white">
+                          <h3 className="text-base font-semibold">Electrodomésticos</h3>
+                          <p className="text-xs opacity-90">& Hogar</p>
+                        </div>
+                      </div>
+                    </Card>
                   </Link>
-                  <Link href="/para-comerciantes">
-                    <Button
-                      size="lg"
-                      variant="outline"
-                      className="border-gray-900 text-gray-900 hover:bg-white/10 font-semibold px-8 py-4 text-lg bg-transparent"
-                    >
-                      <Users className="w-5 h-5 mr-2" />
-                      Para Comerciantes
-                    </Button>
-                  </Link>
-                </div>
-                {/* SEO: Días de ofertas famosos */}
-                <div className="pt-4 flex flex-wrap gap-2">
-                  {seoKeywords.split(", ").map((kw) => (
-                    <span key={kw} className="inline-block bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-xs font-semibold border border-orange-200">
-                      {kw}
-                    </span>
-                  ))}
+
+                  {/* Cosméticos y Sneakers - Abajo (2 columnas) */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <Link href="/categorias/cosmeticos-farmacia">
+                      <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group cursor-pointer h-20 lg:h-24">
+                        <div className="relative h-full">
+                          <img
+                            src="/Imagenes landing/4.jpg"
+                            alt="Cosméticos"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                          <div className="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-all duration-300"></div>
+                          <div className="absolute bottom-2 left-2 text-white">
+                            <h3 className="text-sm font-semibold">Cosméticos</h3>
+                          </div>
+                        </div>
+                      </Card>
+                    </Link>
+
+                    <Link href="/categorias/sneakers-zapatos">
+                      <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group cursor-pointer h-20 lg:h-24">
+                        <div className="relative h-full">
+                          <img
+                            src="/Imagenes landing/5.jpg"
+                            alt="Sneakers"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                          <div className="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-all duration-300"></div>
+                          <div className="absolute bottom-2 left-2 text-white">
+                            <h3 className="text-sm font-semibold">Sneakers</h3>
+                          </div>
+                        </div>
+                      </Card>
+                    </Link>
+                  </div>
                 </div>
               </div>
 
-              <div className="relative">
-                <div className="relative z-10 bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
-                  <img
-                    src="/gifs/compra-como-siempre.gif"
-                    alt="Compra como siempre y Cuponomics te ayudará a ahorrar"
-                    className="w-full rounded-lg shadow-2xl"
-                    loading="eager"
-                  />
-                </div>
-                <div className="absolute -top-4 -right-4 w-24 h-24 bg-yellow-400 rounded-full opacity-20 animate-pulse"></div>
-                <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-orange-400 rounded-full opacity-20 animate-pulse delay-1000"></div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Aviso de acceso libre a las ofertas (cerrable) */}
-        {showFreeAccessNotice && (
-          <section className="w-full bg-green-50 border border-green-200 rounded-lg p-4 my-6 text-center relative">
-            <button
-              className="absolute top-2 right-2 text-green-700 hover:text-green-900 text-xl font-bold"
-              aria-label="Cerrar aviso"
-              onClick={() => setShowFreeAccessNotice(false)}
-            >
-              ×
-            </button>
-            <span className="text-green-800 font-semibold text-lg">
-              ¡No necesitas estar registrado para usar las ofertas de Cuponomics! Disfruta y ahorra sin crear cuenta.
-            </span>
-          </section>
-        )}
-
-        {/* How It Works Section */}
-        <section className="py-20 bg-white">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-16">
-              <Badge className="mb-4 bg-orange-100 text-orange-700 hover:bg-orange-200">
-                <Target className="w-4 h-4 mr-2" />
-                Cómo Funciona
-              </Badge>
-              <h2 className="text-3xl lg:text-5xl font-bold text-gray-900 mb-6 font-genty">Ahorra en 3 simples pasos</h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                Nuestra plataforma te conecta con las mejores ofertas verificadas por la comunidad
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-8">
-              <Card className="relative overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 group">
-                <CardContent className="p-8 text-center">
-                  <div className="mb-6">
-                    <img
-                      src="/gifs/encuentra-mejores-ofertas.gif"
-                      alt="Encuentra las mejores ofertas verificadas por la comunidad"
-                      className="w-full h-48 object-cover rounded-lg mb-4"
-                      loading="lazy"
-                    />
-                    <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto">
-                      <span className="text-2xl font-bold text-orange-600">1</span>
+              {/* Fila 2: 3 categorías medianas */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <Link href="/categorias/ropa-accesorios-deporte">
+                  <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group cursor-pointer h-40">
+                    <div className="relative h-full">
+                      <img
+                        src="/Imagenes landing/2.jpg"
+                        alt="Ropa & Deporte"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-all duration-300"></div>
+                      <div className="absolute bottom-4 left-4 text-white">
+                        <h3 className="text-lg font-bold">Ropa & Deporte</h3>
+                        <p className="text-sm opacity-90">Moda y equipamiento deportivo</p>
+                      </div>
                     </div>
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-4">Encuentra las mejores ofertas</h3>
-                  <p className="text-gray-600 leading-relaxed">
-                    Descubre cupones verificados por nuestra comunidad en miles de tiendas online
-                  </p>
-                </CardContent>
-              </Card>
+                  </Card>
+                </Link>
 
-              <Card className="relative overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 group">
-                <CardContent className="p-8 text-center">
-                  <div className="mb-6">
-                    <img
-                      src="/gifs/navega-y-compra.gif"
-                      alt="Navega y compra en tus tiendas favoritas"
-                      className="w-full h-48 object-cover rounded-lg mb-4"
-                      loading="lazy"
-                    />
-                    <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto">
-                      <span className="text-2xl font-bold text-yellow-600">2</span>
+                <Link href="/categorias/viajes-experiencias">
+                  <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group cursor-pointer h-40">
+                    <div className="relative h-full">
+                      <img
+                        src="/Imagenes landing/6 Viajes & Experiencias.jpg"
+                        alt="Viajes"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-all duration-300"></div>
+                      <div className="absolute bottom-4 left-4 text-white">
+                        <h3 className="text-lg font-bold">Viajes</h3>
+                        <p className="text-sm opacity-90">Vacaciones y experiencias</p>
+                      </div>
                     </div>
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-4">Navega y compra</h3>
-                  <p className="text-gray-600 leading-relaxed">
-                    Compra normalmente en tus tiendas favoritas mientras nosotros aplicamos los descuentos
-                  </p>
-                </CardContent>
-              </Card>
+                  </Card>
+                </Link>
 
-              <Card className="relative overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 group">
-                <CardContent className="p-8 text-center">
-                  <div className="mb-6">
-                    <img
-                      src="/gifs/ahorra-automaticamente.gif"
-                      alt="Ahorra automáticamente en cada compra"
-                      className="w-full h-48 object-cover rounded-lg mb-4"
-                      loading="lazy"
-                    />
-                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-                      <span className="text-2xl font-bold text-green-600">3</span>
+                <Link href="/categorias/supermercado-alimentacion">
+                  <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group cursor-pointer h-40">
+                    <div className="relative h-full">
+                      <img
+                        src="/Imagenes landing/7. Supermercado & Alimentación.jpg"
+                        alt="Supermercado"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-all duration-300"></div>
+                      <div className="absolute bottom-4 left-4 text-white">
+                        <h3 className="text-lg font-bold">Supermercado</h3>
+                        <p className="text-sm opacity-90">Comida y productos frescos</p>
+                      </div>
                     </div>
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-4">Ahorra automáticamente</h3>
-                  <p className="text-gray-600 leading-relaxed">
-                    Recibe tus descuentos automáticamente y comparte tu experiencia con la comunidad
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </section>
-
-        {/* Community Features Section */}
-        <section className="py-20 bg-gradient-to-br from-orange-50 to-yellow-50">
-          <div className="container mx-auto px-4">
-            <div className="grid lg:grid-cols-2 gap-16 items-center">
-              <div className="space-y-8">
-                <div>
-                  <Badge className="mb-4 bg-orange-100 text-orange-700 hover:bg-orange-200">
-                    <MessageSquare className="w-4 h-4 mr-2" />
-                    Comunidad
-                  </Badge>
-                  <h2 className="text-3xl lg:text-5xl font-bold text-gray-900 mb-6 font-genty">
-                    Califica y comparte tus experiencias
-                  </h2>
-                  <p className="text-xl text-gray-600 leading-relaxed">
-                    Únete a nuestra comunidad de ahorradores inteligentes. Comparte reseñas, califica cupones y ayuda a
-                    otros a encontrar las mejores ofertas.
-                  </p>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-                      <Star className="w-6 h-6 text-orange-600" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-900">Sistema de calificaciones</h4>
-                      <p className="text-gray-600">Califica cupones y tiendas para ayudar a la comunidad</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
-                      <Shield className="w-6 h-6 text-yellow-600" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-900">Verificación comunitaria</h4>
-                      <p className="text-gray-600">Todos los cupones son verificados por usuarios reales</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                      <Award className="w-6 h-6 text-green-600" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-900">Recompensas por participar</h4>
-                      <p className="text-gray-600">Gana puntos y beneficios por contribuir a la comunidad</p>
-                    </div>
-                  </div>
-                </div>
-
-                <Link href="/calificar-cupones">
-                  <Button size="lg" className="bg-orange-500 hover:bg-orange-600 text-white">
-                    <Users className="w-5 h-5 mr-2" />
-                    Únete a la Comunidad
-                  </Button>
+                  </Card>
                 </Link>
               </div>
-
-              <div className="relative">
-                <img
-                  src="/gifs/califica-y-comparte.gif"
-                  alt="Califica y comparte tus experiencias con la comunidad"
-                  className="w-full rounded-2xl shadow-2xl"
-                  loading="lazy"
-                />
-                <div className="absolute -top-4 -right-4 w-20 h-20 bg-orange-400 rounded-full opacity-20 animate-bounce"></div>
-              </div>
             </div>
           </div>
         </section>
 
-        {/* For Merchants Section */}
-        <section className="py-20 bg-white">
+                {/* Sección de Ofertas Destacadas - Estilo Shoparize */}
+        <section className="py-16 bg-gray-50">
           <div className="container mx-auto px-4">
-            <div className="grid lg:grid-cols-2 gap-16 items-center">
-              <div className="relative order-2 lg:order-1">
-                <img
-                  src="/gifs/para-comerciantes.gif"
-                  alt="Para comerciantes: registra tu tienda y aumenta tus ventas"
-                  className="w-full rounded-2xl shadow-2xl"
-                  loading="lazy"
-                />
-                <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-orange-400 rounded-full opacity-20 animate-pulse"></div>
-              </div>
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 font-genty">
+                Ofertas destacadas
+              </h2>
+              <Link href="/comparar-precios">
+                <Button variant="outline" className="border-orange-500 text-orange-600 hover:bg-orange-50">
+                  Ver todas
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+            </div>
 
-              <div className="space-y-8 order-1 lg:order-2">
-                <div>
-                  <Badge className="mb-4 bg-orange-100 text-orange-700 hover:bg-orange-200">
-                    <ShoppingBag className="w-4 h-4 mr-2" />
-                    Para Comerciantes
-                  </Badge>
-                  <h2 className="text-3xl lg:text-5xl font-bold text-gray-900 mb-6 font-genty">
-                    Registra tu tienda y aumenta tus ventas
-                  </h2>
-                  <p className="text-xl text-gray-600 leading-relaxed">
-                    Conecta con miles de compradores activos, aumenta tu visibilidad y genera más conversiones con nuestra
-                    plataforma de cupones.
-                  </p>
-                </div>
+            <FeaturedOffersSection />
 
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-                      <TrendingUp className="w-6 h-6 text-orange-600" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-900">Aumenta tus ventas</h4>
-                      <p className="text-gray-600">Atrae más clientes con ofertas exclusivas</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
-                      <Users className="w-6 h-6 text-yellow-600" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-900">Alcance masivo</h4>
-                      <p className="text-gray-600">Accede a nuestra base de 1.2K+ usuarios activos</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                      <Zap className="w-6 h-6 text-green-600" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-900">Fácil integración</h4>
-                      <p className="text-gray-600">Setup rápido con nuestro sistema de tracking</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Link href="/para-comerciantes">
-                    <Button size="lg" className="bg-orange-500 hover:bg-orange-600 text-white">
+            {/* Botón de llamada a la acción al estilo Shoparize */}
+            <div className="text-center mt-12">
+              <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 max-w-2xl mx-auto">
+                <h3 className="text-xl font-bold text-gray-900 mb-3">
+                  ¿No encuentras lo que buscas?
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  Explora miles de ofertas más en nuestras categorías especializadas y encuentra los mejores precios del mercado.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Link href="/buscar-ofertas">
+                    <Button size="lg" className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3">
                       <ShoppingBag className="w-5 h-5 mr-2" />
-                      Registrar Tienda
+                      Ver otras ofertas
+                      <ArrowRight className="w-5 h-5 ml-2" />
                     </Button>
                   </Link>
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="border-orange-500 text-orange-600 hover:bg-orange-50 bg-transparent"
-                  >
-                    Ver Beneficios
-                    <ArrowRight className="w-5 h-5 ml-2" />
-                  </Button>
+                  <Link href="/categorias">
+                    <Button variant="outline" size="lg" className="border-orange-500 text-orange-600 hover:bg-orange-50 px-8 py-3">
+                      <Filter className="w-5 h-5 mr-2" />
+                      Explorar categorías
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Stats Section - Estadísticas en tiempo real */}
-        <section className="py-20 bg-gradient-to-r from-orange-500 to-yellow-500 text-white">
+        {/* Sección de Cupones Populares */}
+        <section className="py-16 bg-white">
           <div className="container mx-auto px-4">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl lg:text-5xl font-bold mb-6 font-genty">Números que hablan por sí solos</h2>
-              <p className="text-xl text-orange-100 max-w-3xl mx-auto">
-                Únete a miles de usuarios que ya están ahorrando con Cuponomics
-              </p>
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 font-genty">
+                Cupones más utilizados
+              </h2>
+              <Link href="/buscar-ofertas">
+                <Button variant="outline" className="border-orange-500 text-orange-600 hover:bg-orange-50">
+                  Ver todos los cupones
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
             </div>
 
-            <div className="text-white">
-              <RealTimeStats />
-            </div>
+            <PopularCouponsSection />
           </div>
         </section>
 
-        {/* Últimas Ofertas Agregadas */}
-        <section className="py-20 bg-white">
+        {/* Últimas Ofertas Destacadas */}
+        <section className="py-8 bg-gray-50">
           <div className="container mx-auto px-4">
             <LatestOffersSection />
           </div>
         </section>
 
-        {/* Early Adopters Section */}
-        <EarlyAdoptersSection />
-
-        {/* Reviews de la Comunidad */}
-        <section className="py-20 bg-gradient-to-br from-orange-50 to-yellow-50">
+        {/* Barra Inferior - Información sobre la plataforma (colapsable) */}
+        <section className="bg-gray-50 border-t">
           <div className="container mx-auto px-4">
-            <ReviewsFeed limit={3} showHeader={true} filter="positive" />
-          </div>
-        </section>
-
-        {/* CTA Section */}
-        <section className="py-20 bg-white">
-          <div className="container mx-auto px-4 text-center">
-            <div className="max-w-4xl mx-auto space-y-8">
-              <Badge className="bg-gradient-to-r from-orange-100 to-yellow-100 text-orange-700 border-0 text-lg px-6 py-2">
-                <Heart className="w-5 h-5 mr-2" />
-                Únete a la Revolución del Ahorro
-              </Badge>
-
-              <h2 className="text-3xl lg:text-6xl font-bold text-gray-900 leading-tight font-genty">
-                Comienza a ahorrar
-                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-yellow-500">
-                  hoy mismo
-                </span>
-              </h2>
-
-              <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-                Descubre por qué miles de usuarios confían en Cuponomics para ahorrar en sus compras online. Es gratis,
-                fácil y efectivo.
-              </p>
-
-              <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8">
-                <Link href="/buscar-ofertas">
-                  <Button
-                    size="lg"
-                    className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white font-semibold px-8 py-4 text-lg"
-                  >
-                    <Gift className="w-5 h-5 mr-2" />
-                    Buscar Ofertas Gratis
-                  </Button>
-                </Link>
-                <Link href="/login">
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="border-2 border-orange-500 text-orange-600 hover:bg-orange-50 font-semibold px-8 py-4 text-lg bg-transparent"
-                  >
-                    <Users className="w-5 h-5 mr-2" />
-                    Crear Cuenta
-                  </Button>
-                </Link>
+            <div className="py-6">
+              <button
+                onClick={() => setShowInfoSection(!showInfoSection)}
+                className="w-full flex items-center justify-between text-left text-lg font-semibold text-gray-900 hover:text-orange-600 transition-colors"
+              >
+                <span>💡 ¿Qué es Cuponomics? Conoce más sobre nuestra plataforma</span>
+                <ArrowRight className={`w-5 h-5 transition-transform ${showInfoSection ? 'rotate-90' : ''}`} />
+              </button>
               </div>
 
-              {/* Navegación rápida */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-8">
-                <Link href="/ofertas-populares">
-                  <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 text-center border border-purple-200 hover:shadow-lg transition-all duration-300 hover:scale-105">
-                    <TrendingUp className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-                    <h3 className="font-bold text-purple-700">Ofertas Populares</h3>
-                    <p className="text-sm text-purple-600">Los cupones más utilizados</p>
+            {showInfoSection && (
+              <div className="border-t border-gray-200 py-8 animate-fade-in-up">
+                <div className="grid lg:grid-cols-3 gap-8">
+                  {/* Cómo funciona */}
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-4">¿Cómo funciona?</h3>
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
+                          <span className="text-sm font-bold text-orange-600">1</span>
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-gray-900">Busca y compara</h4>
+                          <p className="text-sm text-gray-600">Encuentra los mejores precios en tiempo real</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
+                          <span className="text-sm font-bold text-orange-600">2</span>
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-gray-900">Aplica cupones</h4>
+                          <p className="text-sm text-gray-600">Usa códigos verificados por la comunidad</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
+                          <span className="text-sm font-bold text-orange-600">3</span>
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-gray-900">Ahorra dinero</h4>
+                          <p className="text-sm text-gray-600">Obtén los mejores descuentos disponibles</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </Link>
-                <Link href="/productos-en-oferta">
-                  <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-4 text-center border border-emerald-200 hover:shadow-lg transition-all duration-300 hover:scale-105">
-                    <ShoppingBag className="h-8 w-8 text-emerald-600 mx-auto mb-2" />
-                    <h3 className="font-bold text-emerald-700">Productos Outlet</h3>
-                    <p className="text-sm text-emerald-600">Descuentos increíbles</p>
-                  </div>
-                </Link>
-                <Link href="/buscar-ofertas">
-                  <div className="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-xl p-4 text-center border border-orange-200 hover:shadow-lg transition-all duration-300 hover:scale-105">
-                    <Gift className="h-8 w-8 text-orange-600 mx-auto mb-2" />
-                    <h3 className="font-bold text-orange-700">Todas las Ofertas</h3>
-                    <p className="text-sm text-orange-600">Explora todos los cupones</p>
-                  </div>
-                </Link>
-              </div>
 
-              <div className="flex items-center justify-center gap-8 pt-8 text-sm text-gray-500">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                  <span>100% Gratis</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                  <span>Sin Spam</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                  <span>Cupones Verificados</span>
+                  {/* Para comerciantes */}
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-4">Para Comerciantes</h3>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-500" />
+                        <span className="text-sm text-gray-600">Aumenta tu visibilidad online</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-500" />
+                        <span className="text-sm text-gray-600">Atrae más clientes con ofertas</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-500" />
+                        <span className="text-sm text-gray-600">Integración fácil y rápida</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-500" />
+                        <span className="text-sm text-gray-600">Analytics y seguimiento detallado</span>
+                      </div>
+                    </div>
+                    <Link href="/para-comerciantes">
+                      <Button className="mt-4 bg-orange-500 hover:bg-orange-600 text-white">
+                        <ShoppingBag className="w-4 h-4 mr-2" />
+                        Registrar Tienda
+                      </Button>
+                </Link>
+                  </div>
+
+                  {/* Estadísticas y comunidad */}
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-4">Nuestra Comunidad</h3>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600">Cupones verificados</span>
+                        <span className="font-semibold text-gray-900">1,200+</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600">Tiendas asociadas</span>
+                        <span className="font-semibold text-gray-900">500+</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600">Usuarios activos</span>
+                        <span className="font-semibold text-gray-900">50K+</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600">Ahorros generados</span>
+                        <span className="font-semibold text-orange-600">€2.5M+</span>
+                      </div>
+                    </div>
+                    <div className="mt-4 flex gap-2">
+                      <Link href="/calificar-cupones">
+                        <Button variant="outline" size="sm">
+                          <Star className="w-4 h-4 mr-2" />
+                          Calificar Cupones
+                        </Button>
+                </Link>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </section>
       </div>

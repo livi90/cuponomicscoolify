@@ -71,7 +71,7 @@ export function LatestOffersSection() {
             return 0
           }
           return aIsEarlyAdopter ? -1 : 1
-        }).slice(0, 6)
+        }).slice(0, 3)
 
         // Transformar los datos para que coincidan con la interfaz
         const transformedOffers = sortedOffers.map(offer => ({
@@ -151,93 +151,87 @@ export function LatestOffersSection() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Clock className="w-6 h-6 text-orange-500" />
-          <h2 className="text-2xl font-bold text-gray-900">Últimas Ofertas Agregadas</h2>
+        <div className="flex items-center gap-2">
+          <Clock className="w-5 h-5 text-orange-500" />
+          <h2 className="text-lg font-semibold text-gray-700">Últimas Ofertas Agregadas</h2>
         </div>
         <Link href="/buscar-ofertas">
-          <Button variant="outline" className="text-orange-600 border-orange-200 hover:bg-orange-50">
+          <Button variant="outline" size="sm" className="text-orange-600 border-orange-200 hover:bg-orange-50">
             Ver todas
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {latestOffers.map((offer) => {
           const avgRating = getAverageRating(offer.ratings)
           const verificationRate = getVerificationRate(offer.ratings)
           const timeAgo = formatTimeAgo(offer.created_at)
 
           return (
-            <Card key={offer.id} className="hover:shadow-lg transition-all duration-300 hover:scale-105 group">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center border border-gray-200">
+            <Card key={offer.id} className="hover:shadow-md transition-all duration-300 hover:scale-102 group">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center border border-gray-200">
                     {offer.store.logo_url ? (
                       <Image
                         src={offer.store.logo_url}
                         alt={offer.store.name}
-                        width={32}
-                        height={32}
+                        width={24}
+                        height={24}
                         className="object-contain"
                       />
                     ) : (
-                      <Store className="w-5 h-5 text-gray-400" />
+                      <Store className="w-4 h-4 text-gray-400" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold text-gray-900 truncate">{offer.store.name}</h4>
-                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                    <h4 className="font-medium text-gray-900 text-sm truncate">{offer.store.name}</h4>
+                    <div className="flex items-center gap-1 text-xs text-gray-500">
                       <Clock className="w-3 h-3" />
                       <span>{timeAgo}</span>
                     </div>
                   </div>
                 </div>
 
-                <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-orange-600 transition-colors">
+                <h3 className="font-semibold text-gray-900 mb-2 text-sm line-clamp-2 group-hover:text-orange-600 transition-colors">
                   {offer.title}
                 </h3>
 
-                {offer.description && (
-                  <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-                    {offer.description}
-                  </p>
-                )}
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Badge className="bg-green-100 text-green-700 border-green-200 text-xs">
+                      ${offer.discount_value} OFF
+                    </Badge>
+                    {offer.store.is_early_adopter && (
+                      <EarlyAdopterBadge size="sm" />
+                    )}
+                  </div>
+                  <Badge variant="outline" className="text-xs">
+                    {offer.coupon_type === 'code' ? 'Código' : 'Oferta'}
+                  </Badge>
+                </div>
 
-                                 <div className="flex items-center justify-between mb-4">
-                   <div className="flex items-center gap-2">
-                     <Badge className="bg-green-100 text-green-700 border-green-200">
-                       ${offer.discount_value} OFF
-                     </Badge>
-                     {offer.store.is_early_adopter && (
-                       <EarlyAdopterBadge size="sm" />
-                     )}
-                   </div>
-                   <Badge variant="outline" className="text-xs">
-                     {offer.coupon_type === 'code' ? 'Código' : 'Oferta'}
-                   </Badge>
-                 </div>
-
-                <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center justify-between text-xs mb-3">
                   <div className="flex items-center gap-1">
-                    <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                    <Star className="w-3 h-3 text-yellow-500 fill-current" />
                     <span className="font-medium">{avgRating}</span>
                     <span className="text-gray-500">({offer.ratings.length})</span>
                   </div>
                   {verificationRate > 0 && (
-                    <div className="text-green-600 font-medium">
+                    <div className="text-green-600 font-medium text-xs">
                       {verificationRate}% verificado
                     </div>
                   )}
                 </div>
 
-                <Link href={`/cupones/${offer.id}`} className="block mt-4">
-                  <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white">
+                <Link href={`/cupones/${offer.id}`} className="block">
+                  <Button size="sm" className="w-full bg-orange-500 hover:bg-orange-600 text-white text-xs">
                     Ver Oferta
-                    <ArrowRight className="w-4 h-4 ml-2" />
+                    <ArrowRight className="w-3 h-3 ml-1" />
                   </Button>
                 </Link>
               </CardContent>

@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { Tag, Store, Users, ThumbsUp, TrendingUp, Coins, Gift, ShoppingBag } from "lucide-react"
+import { Tag, Store, Users, ThumbsUp, TrendingUp, Coins, Gift, ShoppingBag, Database, Search } from "lucide-react"
 import CopyExclusiveLinkButton from "@/components/dashboard/CopyExclusiveLinkButton"
 
 export default async function DashboardPage() {
@@ -424,6 +424,29 @@ export default async function DashboardPage() {
                 <li>Moderar calificaciones recientes</li>
                 <li>Verificar cupones reportados</li>
               </ul>
+            </div>
+            <div className="mt-6 pt-4 border-t">
+              <h3 className="font-medium mb-3">Herramientas de Administración:</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <Link href="/dashboard/admin/meilisearch-indices">
+                  <Button variant="outline" className="w-full justify-start">
+                    <Database className="h-4 w-4 mr-2" />
+                    Gestión de Índices Meilisearch
+                  </Button>
+                </Link>
+                <Link href="/dashboard/admin/analytics">
+                  <Button variant="outline" className="w-full justify-start">
+                    <TrendingUp className="h-4 w-4 mr-2" />
+                    Analytics y Métricas
+                  </Button>
+                </Link>
+                <Link href="/busqueda-hibrida">
+                  <Button variant="outline" className="w-full justify-start">
+                    <Search className="h-4 w-4 mr-2" />
+                    Búsqueda Híbrida
+                  </Button>
+                </Link>
+              </div>
             </div>
           </CardContent>
         </Card>
