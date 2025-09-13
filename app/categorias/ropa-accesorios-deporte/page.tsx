@@ -29,7 +29,7 @@ export default function RopaAccesoriosDeportePage() {
     },
     { 
       name: "Accesorios", 
-      image: "/Imagenes landing/imagens cada categoría/ropaaccesoriosdeporte/Accesorios.png",
+      image: "/Imagenes landing/imagens cada categoría/ropaaccesoriosdeporte/accesorios.png",
       query: "reloj bolso gafas collar pulsera"
     },
     { 
@@ -39,7 +39,7 @@ export default function RopaAccesoriosDeportePage() {
     },
     { 
       name: "Calzado", 
-      image: "/Imagenes landing/imagens cada categoría/ropaaccesoriosdeporte/Calzado.png",
+      image: "/Imagenes landing/imagens cada categoría/ropaaccesoriosdeporte/calzado.png",
       query: "zapatos zapatillas botas nike adidas"
     },
   ]
@@ -61,7 +61,7 @@ export default function RopaAccesoriosDeportePage() {
       <div className="relative">
         <div className="relative h-80 lg:h-96 overflow-hidden">
           <Image
-            src="/Imagenes landing/imagens cada categoría/ropaaccesoriosdeporte/banner ropa accesorios deporte.png"
+            src="/Imagenes landing/imagens cada categoría/ropaaccesoriosdeporte/bannerropaaccesoriosdeporte.png"
             alt="Ropa Accesorios Deporte Banner"
             fill
             className="object-cover"

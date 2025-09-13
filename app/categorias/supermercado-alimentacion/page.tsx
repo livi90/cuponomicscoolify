@@ -37,8 +37,8 @@ export default function SupermercadoAlimentacionPage() {
       {/* Header con banner */}
       <div className="relative h-64">
         <img
-          src="/Imagenes landing/imagens cada categoría/Supermercadoalimentación/banner.png"
-          alt="Supermercado & Alimentación"
+          src="/Imagenes landing/imagens cada categoría/supermercadoalimentacion/6banner.png"
+          alt="Supermercado y Alimentación"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black/40"></div>
