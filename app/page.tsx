@@ -184,11 +184,11 @@ export default function HomePage() {
                 <Link href="/categorias/viajes-experiencias">
                   <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group cursor-pointer h-40">
                     <div className="relative h-full">
-                      <img
-                        src="/Imagenes landing/6 Viajes & Experiencias.jpg"
-                        alt="Viajes"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
+                        <img
+                          src="/Imagenes landing/6.jpg"
+                          alt="Viajes"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
                       <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-all duration-300"></div>
                       <div className="absolute bottom-4 left-4 text-white">
                         <h3 className="text-lg font-bold">Viajes</h3>
@@ -201,11 +201,11 @@ export default function HomePage() {
                 <Link href="/categorias/supermercado-alimentacion">
                   <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group cursor-pointer h-40">
                     <div className="relative h-full">
-                      <img
-                        src="/Imagenes landing/7. Supermercado & Alimentación.jpg"
-                        alt="Supermercado"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
+                        <img
+                          src="/Imagenes landing/7.jpg"
+                          alt="Supermercado"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
                       <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-all duration-300"></div>
                       <div className="absolute bottom-4 left-4 text-white">
                         <h3 className="text-lg font-bold">Supermercado</h3>
